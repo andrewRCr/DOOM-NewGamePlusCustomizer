@@ -1,4 +1,4 @@
-# DOOM-NewGamePlusCustomizer
+# DOOM NewGame+ Customizer
 
 -WORK IN PROGRESS-
 
