@@ -1,29 +1,28 @@
 """
 inventory.py: 
-- 
-- 
+- abstract classes representing player inventory data
+- overall Inventory consists of InventoryModules
+- modules consist of Perks (capacities, suit upgrades, runes) or Items (equipment, weapons)
 """
+
 from enum import Enum
 import os
 from pathlib import Path
 
 
-class InventoryLoadout():
-    """ """
+class Inventory():
+    """ Represents an entire player starting inventory. Has method to generate decl file for modding use. """
 
     def __init__(self):
-        """ """
 
         # create each module
         self.argentUpgrades = ArgentEnergyUpgrades()
         self.praetorSuitUpgrades = PraetorSuitUpgrades()
         self.equipment = Equipment()
-        # self.weapons = Weapons()
+        self.weapons = Weapons()
         self.runes = Runes()
 
-
-        self.modules = [self.argentUpgrades, self.praetorSuitUpgrades, self.equipment, self.runes]
-
+        self.modules = [self.argentUpgrades, self.praetorSuitUpgrades, self.equipment, self.weapons, self.runes]
 
     def generateDeclFile(self):
         """ """
@@ -36,7 +35,6 @@ class InventoryLoadout():
             invItemsCount += len(module.outputDict)
 
         # FORMATTING OUTPUT FILE
-
         indent = '    '
         doubleIndent = indent + indent
         tripleIndent = doubleIndent + indent
@@ -76,7 +74,6 @@ class InventoryModule():
     """ Abstract base class representing a grouping of inventory items. """
 
     def __init__(self):
-        """ """
 
         self.moduleName = ''
 
@@ -89,7 +86,6 @@ class ArgentEnergyUpgrades(InventoryModule):
     """ """
 
     def __init__(self):
-        """ """
 
         self.moduleName = 'ArgentEnergyUpgrades'
 
@@ -98,7 +94,6 @@ class ArgentEnergyUpgrades(InventoryModule):
         self.ammoCapacity = Perk('ammoCapacity', PerkType.PT_ARGENT, '"perk/zion/player/sp/environment_suit/ammo_capacity"', 0, True)
 
         self.modulePerks = [self.healthCapacity, self.armorCapacity, self.ammoCapacity]
-
         self.outputDict = {}
 
     def createOutputDict(self):
@@ -124,7 +119,6 @@ class PraetorSuitUpgrades(InventoryModule):
         self.environmentalResistance3 = Perk('environmentalResistance3', PerkType.PT_PRAETOR, "perk/zion/player/sp/enviroment_suit/modify_enviromental_damage_3")
 
         self.modulePerks = [self.environmentalResistance1, self.environmentalResistance2, self.environmentalResistance3]
-
         self.outputDict = {}
         
     def createOutputDict(self):
@@ -140,7 +134,6 @@ class Runes(InventoryModule):
     """ """
 
     def __init__(self):
-        """ """
 
         self.moduleName = 'Runes'
 
@@ -148,7 +141,6 @@ class Runes(InventoryModule):
         self.dazedAndConfused = Perk('dazedAndConfusedRune', PerkType.PT_RUNE, "perk/zion/player/sp/enviroment_suit/modify_enemy_stagger_duration", None, False, False, False, False)
         
         self.moduleRunes = [self.vacuum, self.dazedAndConfused]
-
         self.outputDict = {}
 
     def createOutputDict(self):
@@ -164,18 +156,17 @@ class Equipment(InventoryModule):
     """ """
 
     def __init__(self):
-        """ """
 
         self.moduleName = 'Equipment'
 
         self.doubleJumpThrustBoots = Item('doubleJumpThrustBoots', ItemType.IT_SPECIAL, "jumpboots/base", False, False)
 
         self.moduleEquipment = [self.doubleJumpThrustBoots]
-
         self.outputDict = {}
 
     def createOutputDict(self):
         """ """
+
         for each in self.moduleEquipment:
             each.updateItemData()
             if each.available is True:
@@ -186,7 +177,19 @@ class Weapons(InventoryModule):
     """ """
 
     def __init__(self):
-        pass
+        
+        self.moduleName = 'Weapons'
+
+        self.moduleWeapons = []
+        self.outputDict = {}
+
+    def createOutputDict(self):
+        """ """
+
+        for each in self.moduleWeapons:
+            each.updateItemData()
+            if each.available is True:
+                self.outputDict[each.name] = each.itemData
 
 
 class PerkType(Enum):
@@ -247,7 +250,7 @@ class ItemType(Enum):
 
 
 class Item():
-    """ represents equipment/weapons """
+    """ Represents an instance of player equipment or weapons. """
 
     def __init__(self, name, type, path, available, equip = False, count = None, applyAfterLoadout = None):
         """" """

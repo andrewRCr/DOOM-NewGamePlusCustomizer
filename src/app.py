@@ -14,12 +14,12 @@ from ctypes import windll, byref, sizeof, c_int
 from inventory import *
 
 class App():
-    """ """
+    """ Main / core application class. """
 
     def __init__(self):
 
         # create default starting inventory
-        self.inventory = InventoryLoadout()
+        self.inventory = Inventory()
 
         # access and modify
         self.modifyTestFunc()
@@ -27,9 +27,8 @@ class App():
         # generate declFile
         self.inventory.generateDeclFile()
         
-
     def modifyTestFunc(self):
-        """ """
+        """ purely for testing """
 
         # making all praetor suit upgrades unlocked
         for eachPerk in self.inventory.praetorSuitUpgrades.modulePerks:
