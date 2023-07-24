@@ -5,9 +5,10 @@ inventory.py:
 - modules consist of Perks (capacities, suit upgrades, runes) or Items (equipment, weapons)
 """
 
+
 from enum import Enum
-import os
-from pathlib import Path
+
+from common import *
 
 
 class Inventory():
@@ -16,15 +17,15 @@ class Inventory():
     def __init__(self):
 
         # create each module
-        self.argentUpgrades = ArgentEnergyUpgrades()
+        self.argentCellUpgrades = ArgentCellUpgrades()
         self.praetorSuitUpgrades = PraetorSuitUpgrades()
         self.equipment = Equipment()
         self.weapons = Weapons()
         self.runes = Runes()
 
-        self.modules = [self.argentUpgrades, self.praetorSuitUpgrades, self.equipment, self.weapons, self.runes]
+        self.modules = [self.argentCellUpgrades, self.praetorSuitUpgrades, self.equipment, self.weapons, self.runes]
 
-    def generateDeclFile(self):
+    def generateDeclFile(self, path = None):
         """ """
 
         invItemsCount = 0
@@ -34,19 +35,9 @@ class Inventory():
             # get total inventory item count
             invItemsCount += len(module.outputDict)
 
-        # FORMATTING OUTPUT FILE
-        indent = '    '
-        doubleIndent = indent + indent
-        tripleIndent = doubleIndent + indent
-        quadIndent = tripleIndent + indent
-
-        # WRITING TO OUTPUT FILE
-        fileNameFinal = 'intro.decl;devInvLoadout'
+        # writing to output file
+        fileNameFinal = 'base.decl;devInvLoadout'
         fileNameTemp = 'loadout.txt'
-
-        loadoutFile = Path(fileNameTemp)
-        if loadoutFile.is_file():
-            os.remove(loadoutFile)
 
         with open(fileNameTemp, 'w+') as file:
             file.write('{\n' + indent)
@@ -64,7 +55,6 @@ class Inventory():
                     file.write('\n' + tripleIndent + '}')
                     itemIndex += 1
 
-
             file.write('\n' + doubleIndent + '}')
             file.write('\n' + indent + '}')
             file.write('\n}')
@@ -78,16 +68,16 @@ class InventoryModule():
         self.moduleName = ''
 
     def updateOutputDict(self):
-        """ virtual method """
+        """ Virtual method: Fills module's outputDict with required and updated data. """
         pass
 
 
-class ArgentEnergyUpgrades(InventoryModule):
-    """ """
+class ArgentCellUpgrades(InventoryModule):
+    """ Represents permanent stat increases to suit subsystem capacities provided by Argent Cells. """
 
     def __init__(self):
 
-        self.moduleName = 'ArgentEnergyUpgrades'
+        self.moduleName = 'ArgentCellUpgrades'
 
         self.healthCapacity = Perk('healthCapacity', PerkType.PT_ARGENT, '"perk/zion/player/sp/environment_suit/health_capacity"', 0, True)
         self.armorCapacity = Perk('armorCapacity', PerkType.PT_ARGENT, '"perk/zion/player/sp/environment_suit/armor_capacity"', 0, True)
@@ -97,7 +87,7 @@ class ArgentEnergyUpgrades(InventoryModule):
         self.outputDict = {}
 
     def createOutputDict(self):
-        """ """
+        """ Fills module's outputDict with required and updated data. """
 
         self.outputDict['base'] = {'researchGroups' : '"main"', 'equip' : 'true'}
 
@@ -108,21 +98,27 @@ class ArgentEnergyUpgrades(InventoryModule):
 
 
 class PraetorSuitUpgrades(InventoryModule):
-    """ """
+    """ Represent permanent suit upgrades provided by Praetor Tokens. """
 
     def __init__(self):
 
         self.moduleName = 'PraetorSuitUpgrades'
 
+        # environmental resistance
         self.environmentalResistance1 = Perk('environmentalResistance1', PerkType.PT_PRAETOR, "perk/zion/player/sp/enviroment_suit/modify_enviromental_damage_1")
         self.environmentalResistance2 = Perk('environmentalResistance2', PerkType.PT_PRAETOR, "perk/zion/player/sp/enviroment_suit/modify_enviromental_damage_2")
         self.environmentalResistance3 = Perk('environmentalResistance3', PerkType.PT_PRAETOR, "perk/zion/player/sp/enviroment_suit/modify_enviromental_damage_3")
+
+        # area-scanning technology
+        # equipment system
+        # powerup effectiveness
+        # dexterity
 
         self.modulePerks = [self.environmentalResistance1, self.environmentalResistance2, self.environmentalResistance3]
         self.outputDict = {}
         
     def createOutputDict(self):
-        """ """
+        """ Fills module's outputDict with required and updated data. """
         
         for each in self.modulePerks:
             each.updatePerkData()
@@ -131,12 +127,17 @@ class PraetorSuitUpgrades(InventoryModule):
 
 
 class Runes(InventoryModule):
-    """ """
+    """ 
+    Represent demonic sigils granting unique perks, acquired via Rune Trials.
+    By default, only 3 can be equipped at once, but setting the isRune flag to False
+    and the equip flag to True makes the rune permanently equipped without taking up a slot.
+    """
 
     def __init__(self):
 
         self.moduleName = 'Runes'
 
+        # individual runes
         self.vacuum = Perk('vacuumRune', PerkType.PT_RUNE, "perk/zion/player/sp/enviroment_suit/increase_drop_radius", None, False, False, False, False)
         self.dazedAndConfused = Perk('dazedAndConfusedRune', PerkType.PT_RUNE, "perk/zion/player/sp/enviroment_suit/modify_enemy_stagger_duration", None, False, False, False, False)
         
@@ -144,7 +145,7 @@ class Runes(InventoryModule):
         self.outputDict = {}
 
     def createOutputDict(self):
-        """ """
+        """ Fills module's outputDict with required and updated data. """
 
         for each in self.moduleRunes:
             each.updatePerkData()
@@ -153,7 +154,7 @@ class Runes(InventoryModule):
 
 
 class Equipment(InventoryModule):
-    """ """
+    """ Represents the double-jump boots and throwable items. """
 
     def __init__(self):
 
@@ -165,7 +166,7 @@ class Equipment(InventoryModule):
         self.outputDict = {}
 
     def createOutputDict(self):
-        """ """
+        """ Fills module's outputDict with required and updated data. """
 
         for each in self.moduleEquipment:
             each.updateItemData()
@@ -174,7 +175,7 @@ class Equipment(InventoryModule):
 
 
 class Weapons(InventoryModule):
-    """ """
+    """ Represents weapons, their mods, and their mod upgrades. """
 
     def __init__(self):
         
@@ -184,7 +185,7 @@ class Weapons(InventoryModule):
         self.outputDict = {}
 
     def createOutputDict(self):
-        """ """
+        """ Fills module's outputDict with required and updated data. """
 
         for each in self.moduleWeapons:
             each.updateItemData()
@@ -193,7 +194,7 @@ class Weapons(InventoryModule):
 
 
 class PerkType(Enum):
-    """ """
+    """ Represents a distinct category of the Perk class. """
     PT_ARGENT = 0,
     PT_PRAETOR = 1,
     PT_WEAPON = 2,
@@ -203,7 +204,10 @@ class PerkType(Enum):
     
         
 class Perk():
-    """ """
+    """ 
+    Represents a bonus of some kind to be granted to the player. 
+    Can be from ArgentCells, PraetorSuit, Weapon mods + their upgrades, or Runes. 
+    """
     def __init__(self, name, type, path, count = None, equip = False, applyUpgradesForPerk = None, isRune = None, runePermanentEquip = None):
         """ """
 
@@ -217,7 +221,7 @@ class Perk():
         self.runePermanentEquip = runePermanentEquip
 
     def updatePerkData(self):
-        """ """
+        """ Applies any changes in member variables to perk's data dictionary. """
 
         match self.type:
 
@@ -240,7 +244,7 @@ class Perk():
 
 
 class ItemType(Enum):
-    """ """
+    """ Represents a distinct category of the Item class. """
     IT_EQUIPMENT = 0,
     IT_WEAPON = 1,
     IT_AMMO = 2,
@@ -253,7 +257,6 @@ class Item():
     """ Represents an instance of player equipment or weapons. """
 
     def __init__(self, name, type, path, available, equip = False, count = None, applyAfterLoadout = None):
-        """" """
 
         self.name = name
         self.type = type
@@ -264,7 +267,7 @@ class Item():
         self.applyAfterLoadout = applyAfterLoadout
 
     def updateItemData(self):
-        """ """
+        """ Applies any changes in member variables to item's data dictionary """
 
         if self.type is (ItemType.IT_EQUIPMENT or ItemType.IT_Weapon):
             self.itemData = {'item': self.path}
