@@ -4,7 +4,7 @@ app.py:
 - creates instance of App, which:
 --- initializes/manages a window + widgets
 --- captures relevant keyboard events
---- creates instance of InventoryLoadout w/ defaults
+--- creates instance of Inventory w/ defaults
 --- runs main loop
 """
 
@@ -18,7 +18,6 @@ try:
 except:
     pass
 
-from common import *
 from inventory import *
 
 
@@ -165,7 +164,7 @@ class App(ctk.CTk):
 
         numMaxedCapacities = 0
         for eachCategory in capacities:
-            if eachCategory.count > 3:
+            if eachCategory.count and eachCategory.count > 3:
                 numMaxedCapacities += 1
 
         if selection > 3 and numMaxedCapacities > 1:
@@ -189,18 +188,21 @@ class App(ctk.CTk):
     def modifyTestFunc(self):
         """ purely for testing """
 
-        # making all praetor suit upgrades unlocked
-        for eachPerk in self.inventory.praetorSuitUpgrades.modulePerks:
-            eachPerk.equip = True
-
-        # making rune available in inventory
-        self.inventory.runes.vacuum.isRune = True
-        # making rune permanently equipped
-        self.inventory.runes.dazedAndConfused.runePermanentEquip = True
-
-        # adding double jump boots to inventory (special)
-        self.inventory.equipment.doubleJumpThrustBoots.available = True
-
+        self.inventory.praetorSuitUpgrades.addToModule('hazardProtection')
+        self.inventory.argentCellUpgrades.healthCapacity.count = 2
+        
+        self.inventory.equipment.addToModule('doubleJumpThrustBoots')
+        self.inventory.equipment.addToModule('siphonGrenade')
+        
+        self.inventory.weapons.addToModule('combatShotgun')
+        self.inventory.ammo.addToModule('shells')
+        self.inventory.weaponMods.addToModule('chargeEfficiency')
+        
+        self.inventory.runes.addToModule('vacuum')
+        self.inventory.runes.vacuum.runePermanentEquip = True
+        self.inventory.runes.addToModule('dazedAndConfused')
+        self.inventory.runes.dazedAndConfused.applyUpgradesForPerk = True
+        
     def makeLevelInheritanceDecls(self, path):
         """ Creates decl files for each game level, with inventory inheriting from the previous level. """
         
@@ -219,7 +221,7 @@ class App(ctk.CTk):
         """ Top-level function for generating final, usable mod output file from current app values. """
 
         # generate dir structure
-        newPath = 'generated\decls\devinvloadout\devinvloadout\sp'
+        newPath = r'generated\decls\devinvloadout\devinvloadout\sp'
         if not os.path.exists(newPath):
             os.makedirs(newPath)
 

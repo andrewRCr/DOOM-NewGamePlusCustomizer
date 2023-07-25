@@ -3,6 +3,8 @@ common.py:
 - formatting + common data definitions
 """
 
+from enum import Enum
+
 
 # basic layout sizing
 WINDOW_SIZE = (1000, 800)
@@ -35,7 +37,9 @@ doubleIndent = indent + indent
 tripleIndent = doubleIndent + indent
 quadIndent = tripleIndent + indent
 
-# data
+# static data
 ARGENT_HEALTH_LEVELS = {0: 'Default (100)', 1: 'Level 1 (125)', 2: 'Level 2 (150)', 3: 'Level 3 (175)', 4: 'Level 4 (200)'} 
 ARGENT_ARMOR_LEVELS = {0: 'Default (50)', 1: 'Level 1 (75)', 2: 'Level 2 (100)', 3: 'Level 3 (125)', 4: 'Level 4 (150)'} 
 ARGENT_AMMO_LEVELS = {0: 'Default', 1: 'Level 1', 2: 'Level 2', 3: 'Level 3', 4: 'Level 4'} 
+
+BASE_ITEM = {'researchGroups' : '"main"', 'equip' : 'true'}
