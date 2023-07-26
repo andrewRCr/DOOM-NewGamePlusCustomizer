@@ -18,7 +18,7 @@ try:
 except:
     pass
 
-from inventory import *
+from datalib.inventory import *
 
 
 class App(ctk.CTk):
@@ -106,7 +106,7 @@ class App(ctk.CTk):
         self.argentHealthLabel.grid(column = 0, row = 1, sticky = 'e')
 
         # health - callback func / dropdown menu
-        argentHealthCallback = partial(self.argentCallback, 'health')
+        argentHealthCallback = partial(self.argentCallback, 'healthCapacity')
         self.argentHealthDropdown = DropdownMenu(self.scrollFrame, list(ARGENT_HEALTH_LEVELS.values()), argentHealthCallback)
         self.argentHealthDropdown.grid(column = 1, row = 1, padx = 10)
 
@@ -115,7 +115,7 @@ class App(ctk.CTk):
         self.argentArmorLabel.grid(column = 2, row = 1, padx = 10, sticky = 'e')
 
         # armor - callback func / dropdown menu
-        argentArmorCallback = partial(self.argentCallback, 'armor')
+        argentArmorCallback = partial(self.argentCallback, 'armorCapacity')
         self.argentArmorDropdown = DropdownMenu(self.scrollFrame, list(ARGENT_ARMOR_LEVELS.values()), argentArmorCallback)
         self.argentArmorDropdown.grid(column = 3, row = 1, padx = 10)
 
@@ -124,56 +124,44 @@ class App(ctk.CTk):
         self.argentAmmoLabel.grid(column = 4, row = 1, padx = 10, sticky = 'e')
 
         # ammo - callback func / dropdown menu
-        argentAmmoCallback = partial(self.argentCallback, 'ammo')
+        argentAmmoCallback = partial(self.argentCallback, 'ammoCapacity')
         self.argentAmmoDropdown = DropdownMenu(self.scrollFrame, list(ARGENT_AMMO_LEVELS.values()), argentAmmoCallback)
         self.argentAmmoDropdown.grid(column = 5, row = 1, padx = 10)
 
-    def argentCallback(self, category, selection):
+    def argentCallback(self, category: str, selection: str):
         """ """
-
-        match category:
-            case 'health':
-                lookup = ARGENT_HEALTH_LEVELS
-                validatedSelection = self.validateArgentSelection(list(lookup)[list(lookup.values()).index(selection)])
-                self.inventory.argentCellUpgrades.healthCapacity.count = validatedSelection
-                self.argentHealthDropdown.set(lookup[validatedSelection])
-
-                print(self.inventory.argentCellUpgrades.healthCapacity.count)
-
-            case 'armor':
-                lookup = ARGENT_ARMOR_LEVELS
-                validatedSelection = self.validateArgentSelection(list(lookup)[list(lookup.values()).index(selection)])
-                self.inventory.argentCellUpgrades.armorCapacity.count = validatedSelection
-                self.argentArmorDropdown.set(lookup[validatedSelection])
-
-                print(self.inventory.argentCellUpgrades.armorCapacity.count)
-
-            case 'ammo':
-                lookup = ARGENT_AMMO_LEVELS
-                validatedSelection = self.validateArgentSelection(list(lookup)[list(lookup.values()).index(selection)])
-                self.inventory.argentCellUpgrades.ammoCapacity.count = validatedSelection
-                self.argentAmmoDropdown.set(lookup[validatedSelection])
-
-                print(self.inventory.argentCellUpgrades.ammoCapacity.count)
-
-    def validateArgentSelection(self, selection):
-        """ Ensures at least one ArgentCell upgrade slot remains open for mandatory game progression. """
-
-        capacityPath = self.inventory.argentCellUpgrades
-        capacities = [capacityPath.healthCapacity, capacityPath.armorCapacity, capacityPath.ammoCapacity]
-
-        numMaxedCapacities = 0
-        for eachCategory in capacities:
-            if eachCategory.count and eachCategory.count > 3:
-                numMaxedCapacities += 1
-
-        if selection > 3 and numMaxedCapacities > 1:
+  
+        def showUpgradeLimitPopupMsg():
+            """ Helper function; creates warning popup message. """
+            
             self.createPopupMessage('At least one category (health, armor, ammo) of Argent Cell upgrades' \
-                                    + ' must not be fully maxed so that you can still pick up the mandatory' \
-                                    + ' first upgrade given at the end of Resource Ops.')
-            selection = 3
+                + ' must not be fully maxed so that you can still pick up the mandatory' \
+                + ' first upgrade given at the end of Resource Ops.')
 
-        return selection
+        def trySetArgentLevel() -> int:
+            """ Helper function; attempts to set level and handles app-level response. """
+            
+            selectionKey: int = list(lookup)[list(lookup.values()).index(selection)]
+            validatedSelectionKey: int = self.inventory.argentCellUpgrades.setArgentLevel(category, selectionKey)
+            if validatedSelectionKey != selectionKey:
+                showUpgradeLimitPopupMsg()
+            return validatedSelectionKey
+        
+        match category:
+            case 'healthCapacity':
+                lookup: dict[int, str] = ARGENT_HEALTH_LEVELS
+                validatedSelectionKey: int = trySetArgentLevel()
+                self.argentHealthDropdown.set(lookup[validatedSelectionKey])
+
+            case 'armorCapacity':
+                lookup = ARGENT_ARMOR_LEVELS
+                validatedSelectionKey = trySetArgentLevel()
+                self.argentArmorDropdown.set(lookup[validatedSelectionKey])
+
+            case 'ammoCapacity':
+                lookup = ARGENT_AMMO_LEVELS
+                validatedSelectionKey = trySetArgentLevel()
+                self.argentAmmoDropdown.set(lookup[validatedSelectionKey])
 
     def createPopupMessage(self, message):
         """ Attempts to create a pop up message; will not create duplicates. Takes app focus. """
@@ -187,21 +175,22 @@ class App(ctk.CTk):
 
     def modifyTestFunc(self):
         """ purely for testing """
-
-        self.inventory.praetorSuitUpgrades.addToModule('hazardProtection')
-        self.inventory.argentCellUpgrades.healthCapacity.count = 2
         
-        self.inventory.equipment.addToModule('doubleJumpThrustBoots')
-        self.inventory.equipment.addToModule('siphonGrenade')
+        self.inventory.argentCellUpgrades.setArgentLevel('healthCapacity', -1)
+        #print(self.inventory.argentCellUpgrades.healthCapacity.count)
         
-        self.inventory.weapons.addToModule('combatShotgun')
-        self.inventory.ammo.addToModule('shells')
-        self.inventory.weaponMods.addToModule('chargeEfficiency')
+        self.inventory.praetorSuitUpgrades.addToAvailable('hazardProtection')
         
-        self.inventory.runes.addToModule('vacuum')
-        self.inventory.runes.vacuum.runePermanentEquip = True
-        self.inventory.runes.addToModule('dazedAndConfused')
-        self.inventory.runes.dazedAndConfused.applyUpgradesForPerk = True
+        self.inventory.equipment.addToAvailable('doubleJumpThrustBoots')
+        self.inventory.equipment.addToAvailable('siphonGrenade')
+        
+        self.inventory.weapons.addToAvailable('combatShotgun')
+        self.inventory.ammo.addToAvailable('shells')
+        self.inventory.weaponMods.addToAvailable('pistol', 'chargeEfficiency')
+        
+        self.inventory.runes.addToAvailable('vacuum')
+        self.inventory.runes.setIsUpgraded('vacuum', True)
+        self.inventory.runes.setIsPermanent('dazedAndConfused', True)
         
     def makeLevelInheritanceDecls(self, path):
         """ Creates decl files for each game level, with inventory inheriting from the previous level. """

@@ -1,10 +1,8 @@
 """
 common.py: 
-- formatting + common data definitions
+- formatting + common static data definitions
+- utility functions
 """
-
-from enum import Enum
-
 
 # basic layout sizing
 WINDOW_SIZE = (1000, 800)
@@ -31,7 +29,7 @@ TITLE_BAR_HEX_COLORS = {
     'light': 0x00EEEEEE
 }
 
-# formatting output files
+# indent defines for formatting output files
 indent = '    '
 doubleIndent = indent + indent
 tripleIndent = doubleIndent + indent
@@ -43,3 +41,8 @@ ARGENT_ARMOR_LEVELS = {0: 'Default (50)', 1: 'Level 1 (75)', 2: 'Level 2 (100)',
 ARGENT_AMMO_LEVELS = {0: 'Default', 1: 'Level 1', 2: 'Level 2', 3: 'Level 3', 4: 'Level 4'} 
 
 BASE_ITEM = {'researchGroups' : '"main"', 'equip' : 'true'}
+
+# utility functions
+def clamp(num: int, smallest: int, largest: int) -> int:
+    """ Clamps an int within the passed range. """
+    return max(smallest, min(num, largest))

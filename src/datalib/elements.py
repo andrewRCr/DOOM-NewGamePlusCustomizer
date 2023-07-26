@@ -1,7 +1,9 @@
 """
-components.py: 
-- individual elements ('entries') that can be put into an InventoryModule
-- hierarchy is Entry->Perk/Item->TypeofPerk/TypeofItem
+elements.py: 
+- individual Elements that can be put into an InventoryModule
+-- these can be Perks (capacities, suit upgrades, runes, weapon mods) 
+-- or Items (equipment, weapons, ammo)
+- hierarchy is Element->Perk/Item->TypeofPerk/TypeofItem
 """
 
 import abc
@@ -12,8 +14,8 @@ from common import *
 
 
 @dataclass
-class InventoryEntry(metaclass = abc.ABCMeta):
-    """ Base class representing a single entry into an InventoryModule. Children are InventoryPerk and InventoryItem."""
+class InventoryElement(metaclass = abc.ABCMeta):
+    """ Base class representing a single element of an InventoryModule. Children are InventoryPerk and InventoryItem."""
 
     name: str
     path: str
@@ -28,10 +30,11 @@ class InventoryEntry(metaclass = abc.ABCMeta):
 
 
 @dataclass
-class InventoryPerk(InventoryEntry):
-    """ Perk inventory entry base class. Children are ArgentPerk, PraetorPerk, RunePerk and WeaponModPerk. """
+class InventoryPerk(InventoryElement):
+    """ Perk inventory element base class. Children are ArgentPerk, PraetorPerk, RunePerk and WeaponModPerk. """
     
     description: Optional[str] = None
+    applicableWeapon: Optional[str] = None
     applyUpgradesForPerk: Optional[bool] = None
     isRune: Optional[bool] = None
     runePermanentEquip: Optional[bool] = None
@@ -39,7 +42,7 @@ class InventoryPerk(InventoryEntry):
   
 @dataclass
 class ArgentPerk(InventoryPerk):
-    """ Represents permanent stat increases to suit subsystem capacities provided by Argent Cells. """
+    """ Represent permanent stat increases to suit subsystem capacities provided by Argent Cells. """
     
     count: int = 0
     
@@ -56,9 +59,13 @@ class PraetorPerk(InventoryPerk):
     """ Represent permanent suit upgrades provided by Praetor Tokens. """
     
     description: str = 'no description provided'
+    unlockable: Optional[str] = None
     
     def updateData(self):
-        self.data = {'perk': self.path, 'equip': 'true'}
+        if self.unlockable:
+            self.data = {'perk': self.path, 'unlockable': self.unlockable, 'equip': 'true'}
+        else:
+            self.data = {'perk': self.path, 'equip': 'true'}
      
         
 @dataclass
@@ -85,17 +92,17 @@ class RunePerk(InventoryPerk):
 class WeaponModPerk(InventoryPerk):
     """ Represents a weapon mod and/or its upgrades. """
     
-    applyUpgradesForPerk: bool = False
+    applicableWeapon: str
     equip: bool = False
     description: str = 'no description provided'
     
     def updateData(self):
-        self.data = {'perk': self.path, 'applyUpgradesForPerk': str(self.applyUpgradesForPerk).lower(), 'equip': 'true'}
+        self.data = {'perk': self.path, 'equip': 'true'}
 
 
 @dataclass
-class InventoryItem(InventoryEntry):
-    """ Non-perk inventory entry base class. Children are EquipmentItem, WeaponItem, and AmmoItem. """
+class InventoryItem(InventoryElement):
+    """ Non-perk inventory element base class. Children are EquipmentItem, WeaponItem, and AmmoItem. """
 
     applyAfterLoadout: Optional[bool] = None
 
@@ -114,10 +121,14 @@ class EquipmentItem(InventoryItem):
 class WeaponItem(InventoryItem):
     """ Represents armaments: fists, chainsaw, guns. """
     
+    equipReserve: Optional[bool] = None
+    
     def updateData(self):
         """ """
         if self.equip:
             self.data = {'item': self.path, 'equip': 'true'}
+        elif self.equipReserve:
+            self.data = {'item': self.path, 'equip_reserve': 'true'}
         else:
             self.data = {'item': self.path}
             
@@ -132,5 +143,4 @@ class AmmoItem(InventoryItem):
     def updateData(self):
         """ """
         self.data = {'item': self.path, 'count': self.count, 'applyAfterLoadout': 'true'}
-                    
-        
+                       
