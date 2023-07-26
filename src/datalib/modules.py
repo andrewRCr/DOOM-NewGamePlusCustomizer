@@ -1,8 +1,8 @@
 """
-modulles.py: 
+modules.py: 
 - represent a grouping of inventory data
-- modules consist of InventoryEntries
-- if these entries are added to their module's Available list, the player starts with them
+- InventoryModules consist of InventoryElements
+- if these elements are added to their module's Available list, the player starts with them @ new game
 - note: the typo in 'enviroment' is present in id's source, and so is here intentionally
 """
 
@@ -12,8 +12,8 @@ from datalib.elements import *
 @dataclass
 class InventoryModule(metaclass = abc.ABCMeta):
     """ 
-    Abstract base class representing a grouping of similar inventory entries.
-    All possible entries are defined as members, with entires in the 'available' list
+    Abstract base class representing a grouping of similar inventory elements.
+    All possible elements are defined as members, with elements in the 'available' list
     being added to the player's starting inventory (some of which are added by default).
     """
 
@@ -21,7 +21,7 @@ class InventoryModule(metaclass = abc.ABCMeta):
     moduleName: str
     elementType: object
     
-    # entries to add to starting inventory loadout
+    # elements to add to starting inventory loadout
     available: list[InventoryElement] = field(default_factory = list)
 
     def updateModuleData(self):
@@ -31,7 +31,7 @@ class InventoryModule(metaclass = abc.ABCMeta):
             each.updateData()
             
     def addToAvailable(self, inventoryElementName: str):
-        """ Adds an entry to module's available pool, if validated. """
+        """ Adds an element to module's available pool, if validated. """
         
         if hasattr(self, inventoryElementName):
             element = getattr(self, inventoryElementName)

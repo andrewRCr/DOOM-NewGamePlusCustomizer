@@ -3,7 +3,6 @@ elements.py:
 - individual Elements that can be put into an InventoryModule
 -- these can be Perks (capacities, suit upgrades, runes, weapon mods) 
 -- or Items (equipment, weapons, ammo)
-- hierarchy is Element->Perk/Item->TypeofPerk/TypeofItem
 """
 
 import abc
