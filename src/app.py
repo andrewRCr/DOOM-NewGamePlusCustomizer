@@ -133,6 +133,10 @@ class App(ctk.CTk):
         self.buttonWidgetFont = ctk.CTkFont('Eternal UI Bold', 16)
         self.textWidgetFont = ctk.CTkFont('Eternal UI Bold', 16)
         self.headerWidgetFont = ctk.CTkFont(family = FONT, size = FONT_SIZES['Headers'])
+        self.checkboxFont = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['Checkboxes'])
+        self.switchFont = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['Checkboxes'])
+        self.runeDescriptionFont = ctk.CTkFont('Eternal UI Regular', 14)
+        self.runeSubOptionFont = ctk.CTkFont('Eternal UI Regular', 15)
             
     def initWidgets(self):
         """ Creates top-level app widgets and calls widget init functions for each inventory module. """
@@ -158,8 +162,8 @@ class App(ctk.CTk):
         self.tabMenu.pack_propagate(True)
         self.tabMenu.pack()
         self.tabMenu.add('Praetor Suit')
-        self.tabMenu.add('Equipment')
-        self.tabMenu.add('Weapons')
+        self.tabMenu.add('Equipment & Weapons')
+        self.tabMenu.add('Weapon Mods')
         self.tabMenu.add('Runes')
         self.tabMenu.set('Praetor Suit')
         
@@ -204,18 +208,31 @@ class App(ctk.CTk):
         # inventory module widgets
         self.initArgentWidgets()
         self.initPraetorWidgets()
+        self.initEquipmentWidgets()
+        self.initWeaponWidgets()
+        #
+        self.initRuneWidgets()
 
     def initArgentWidgets(self):
         """ Creates widgets for the ArgentCellUpgrades inventory module. """
         
-        #parent = self.scrollFrame
         parent = self.tabMenu.tab('Praetor Suit')
-
+        
         self.argentCellHeaderLabel = ctk.CTkLabel(parent, font = self.headerMainFont, text = 'Argent Cell Routing')
         self.argentCellHeaderLabel.grid(column = 0, row = 0, padx = 20, pady = (35, 15), columnspan = 2, sticky = 'w')
         
+        self.toggleAllArgentSwitch = ctk.CTkSwitch(
+            master = parent, 
+            text = 'All Upgrades', 
+            command = self.toggleAllArgentUpgrades,
+            font = self.switchFont,
+            progress_color= RED,
+            switch_height = 16,
+            switch_width = 34)
+        self.toggleAllArgentSwitch.grid(column = 0, row = 1, sticky = 'w', padx = (50, 0), pady = (10, 0))
+        
         self.argentDropdownsFrame = ctk.CTkFrame(parent, fg_color = DARKEST_GRAY)
-        self.argentDropdownsFrame.grid(column = 0, row = 1, padx = (100, 70), pady = (10, 0), columnspan = 6)
+        self.argentDropdownsFrame.grid(column = 0, row = 2, padx = (100, 70), pady = (10, 0), columnspan = 6, sticky = 'n')
 
         # health - label
         self.argentHealthLabel = ctk.CTkLabel(self.argentDropdownsFrame, font = self.textWidgetFont, text = 'Health:')
@@ -245,7 +262,7 @@ class App(ctk.CTk):
         self.argentAmmoDropdown.grid(column = 5, row = 1, padx = 10)
 
     def argentCallback(self, category: str, selection: str):
-        """ """
+        """ Attempts to set the passed Argent category's value to the passed selection. """
   
         def showUpgradeLimitPopupMsg():
             """ Helper function; creates warning popup message. """
@@ -279,18 +296,31 @@ class App(ctk.CTk):
                 validatedSelectionKey = trySetArgentLevel()
                 self.argentAmmoDropdown.set(lookup[validatedSelectionKey])
 
+    def toggleAllArgentUpgrades(self):
+        """ Adds/removes every (possible) upgrade, and sets dropdowns accordingly.  """
+        
+        allArgentCategories = ['healthCapacity', 'armorCapacity', 'ammoCapacity']
+        allArgentLevels = [ARGENT_HEALTH_LEVELS, ARGENT_ARMOR_LEVELS, ARGENT_AMMO_LEVELS]
+        
+        allSwitchOn = self.toggleAllArgentSwitch.get()
+        
+        if allSwitchOn:
+            for index, each in enumerate(allArgentCategories):
+                self.argentCallback(each, allArgentLevels[index][4])
+        else:
+            for index, each in enumerate(allArgentCategories):
+                self.argentCallback(each, allArgentLevels[index][0])   
+
     def initPraetorWidgets(self):
-        """ """
+        """ Creates widgets for the PraetorSuitUpgrades inventory module. """
         parent = self.tabMenu.tab('Praetor Suit')
         
-        parent.columnconfigure(0, weight = 9)
+        parent.columnconfigure(0, weight = 1)
         
         self.praetorCheckboxWidgets = []
         
-        self.checkboxFont = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['Checkboxes'])
-        
         self.praetorSuitHeaderLabel = ctk.CTkLabel(parent, font = self.headerMainFont, text = 'Suit Upgrades')
-        self.praetorSuitHeaderLabel.grid(column = 0, row = 2, padx = 20, pady = (50, 10), columnspan = 2, sticky = 'w')
+        self.praetorSuitHeaderLabel.grid(column = 0, row = 2, padx = 20, pady = (80, 10), columnspan = 2, sticky = 'w')
         
         self.toggleAllPraetorSwitch = ctk.CTkSwitch(
             master = parent, 
@@ -577,7 +607,413 @@ class App(ctk.CTk):
             self.inventory.praetorSuitUpgrades.available.clear()
             for each in self.praetorCheckboxWidgets:
                 each.deselect()      
-            
+   
+    def initEquipmentWidgets(self):
+        """ Creates widgets for the Equipment inventory module. """
+        
+        parentTab = self.tabMenu.tab('Equipment & Weapons')
+        
+        parentTab.columnconfigure(0, weight = 1)
+        
+        self.equipmentCheckboxWidgets = []
+        
+        self.equipmentHeaderLabel = ctk.CTkLabel(parentTab, font = self.headerMainFont, text = 'Equipment')
+        self.equipmentHeaderLabel.grid(column = 0, row = 0, padx = 20, pady = (80, 10), columnspan = 2, sticky = 'nw')
+        
+        self.toggleAllEquipmentSwitch = ctk.CTkSwitch(
+            master = parentTab, 
+            text = 'All Equipment', 
+            command = self.toggleAllEquipment,
+            font = self.checkboxFont,
+            progress_color= RED,
+            switch_height = 16,
+            switch_width = 34)
+        self.toggleAllEquipmentSwitch.grid(column = 0, row = 1, sticky = 'w', padx = (50, 0), pady = (10, 30))
+        
+        self.equipmentCheckboxFrame = ctk.CTkFrame(parentTab, fg_color = 'transparent', border_color=WHITE, border_width=0)
+        self.equipmentCheckboxFrame.grid(column = 0, row = 2)
+        
+        # double jump thrust boots
+        doubleJumpThrustBootsCallback = partial(self.equipmentCallback, 'doubleJumpThrustBoots')
+        doubleJumpThrustBootsTooltipText = self.inventory.equipment.doubleJumpThrustBoots.description
+        self.doubleJumpThrustBootsCheckbox = Checkbox(
+            parent = self.equipmentCheckboxFrame, 
+            text = 'Delta V Jump-Boots', 
+            column = 0, 
+            row = 0, 
+            command = doubleJumpThrustBootsCallback,
+            tooltipMsg = doubleJumpThrustBootsTooltipText,
+            sticky = 'w',
+            padx = (35, 0),
+            pady = (0, 45))
+        self.equipmentCheckboxWidgets.append(self.doubleJumpThrustBootsCheckbox)
+        
+        # frag grenade
+        fragGrenadeCallback = partial(self.equipmentCallback, 'fragGrenade')
+        fragGrenadeTooltipText = self.inventory.equipment.fragGrenade.description
+        self.fragGrenadeCheckbox = Checkbox(
+            parent = self.equipmentCheckboxFrame, 
+            text = 'Frag Grenade', 
+            column = 1, 
+            row = 0, 
+            command = fragGrenadeCallback,
+            tooltipMsg = fragGrenadeTooltipText,
+            sticky = 'w',
+            padx = (35, 0),
+            pady = (0, 45))
+        self.equipmentCheckboxWidgets.append(self.fragGrenadeCheckbox)
+        
+        # decoy hologram
+        decoyHologramCallback = partial(self.equipmentCallback, 'decoyHologram')
+        decoyHologramTooltipText = self.inventory.equipment.decoyHologram.description
+        self.decoyHologramCheckbox = Checkbox(
+            parent = self.equipmentCheckboxFrame, 
+            text = 'Decoy Hologram', 
+            column = 2, 
+            row = 0, 
+            command = decoyHologramCallback,
+            tooltipMsg = decoyHologramTooltipText,
+            sticky = 'w',
+            padx = (35, 0),
+            pady = (0, 45))
+        self.equipmentCheckboxWidgets.append(self.decoyHologramCheckbox)
+        
+        # siphon grenade
+        siphonGrenadeCallback = partial(self.equipmentCallback, 'siphonGrenade')
+        siphonGrenadeTooltipText = self.inventory.equipment.siphonGrenade.description
+        self.siphonGrenadeCheckbox = Checkbox(
+            parent = self.equipmentCheckboxFrame, 
+            text = 'Siphon Grenade', 
+            column = 3, 
+            row = 0, 
+            command = siphonGrenadeCallback,
+            tooltipMsg = siphonGrenadeTooltipText,
+            sticky = 'w',
+            padx = (35, 0),
+            pady = (0, 45))
+        self.equipmentCheckboxWidgets.append(self.siphonGrenadeCheckbox)
+    
+    def equipmentCallback(self, equipmentItemName: str):
+        """ Toggles an EquipmentItem's availability.  """
+        
+        # if not in available, add it; else, remove
+        found = False
+        for equipmentItem in self.inventory.equipment.available:
+            if equipmentItem.name == equipmentItemName:
+                found = True
+                self.inventory.equipment.available.remove(equipmentItem)
+                # clear toggleAll switch - all are no longer selected
+                if self.toggleAllEquipmentSwitch.get():
+                    self.toggleAllEquipmentSwitch.deselect()
+                break
+        if not found:
+            self.inventory.equipment.addToAvailable(equipmentItemName)
+    
+    def toggleAllEquipment(self):
+        """ Adds/removes all equipment, and selects/deselects checkboxes accordingly.  """
+        
+        allSwitchOn = self.toggleAllEquipmentSwitch.get()
+        
+        if allSwitchOn:
+            self.inventory.equipment.addAllToAvailable()
+            # update UI - all equipment checkboxes
+            for each in self.equipmentCheckboxWidgets:
+                each.select()
+        else:
+            self.inventory.equipment.available.clear()
+            for each in self.equipmentCheckboxWidgets:
+                each.deselect()     
+    
+    def initWeaponWidgets(self):
+        """ Creates widgets for the Weapons inventory module. """
+        
+        parentTab = self.tabMenu.tab('Equipment & Weapons')
+        
+        self.weaponsCheckboxWidgets = []
+        
+        self.weaponsHeaderLabel = ctk.CTkLabel(parentTab, font = self.headerMainFont, text = 'Weapons')
+        self.weaponsHeaderLabel.grid(column = 0, row = 3, padx = 20, pady = (20, 10), columnspan = 2, sticky = 'nw')
+        
+        self.toggleAllWeaponsSwitch = ctk.CTkSwitch(
+            master = parentTab, 
+            text = 'All Weapons', 
+            command = self.toggleAllWeapons,
+            font = self.checkboxFont,
+            progress_color= RED,
+            switch_height = 16,
+            switch_width = 34)
+        self.toggleAllWeaponsSwitch.grid(column = 0, row = 4, sticky = 'w', padx = (50, 0), pady = (10, 30))
+        
+        self.weaponsCheckboxFrame1 = ctk.CTkFrame(parentTab, fg_color = 'transparent', border_color=WHITE, border_width=0)
+        self.weaponsCheckboxFrame1.grid(column = 0, row = 5)
+        
+        # chainsaw
+        chainsawCallback = partial(self.weaponsCallback, 'chainsaw')
+        chainsawTooltipText = self.inventory.weapons.chainsaw.description
+        self.chainsawCheckbox = Checkbox(
+            parent = self.weaponsCheckboxFrame1, 
+            text = 'Chainsaw', 
+            column = 0, 
+            row = 0, 
+            command = chainsawCallback,
+            tooltipMsg = chainsawTooltipText,
+            sticky = 'w',
+            padx = (0, 50),
+            pady = (0, 10))
+        self.weaponsCheckboxWidgets.append(self.chainsawCheckbox)
+        
+        # combat shotgun
+        combatShotgunCallback = partial(self.weaponsCallback, 'combatShotgun')
+        combatShotgunTooltipText = self.inventory.weapons.combatShotgun.description
+        self.combatShotgunCheckbox = Checkbox(
+            parent = self.weaponsCheckboxFrame1, 
+            text = 'Combat Shotgun', 
+            column = 0, 
+            row = 1, 
+            command = combatShotgunCallback,
+            tooltipMsg = combatShotgunTooltipText,
+            sticky = 'w',
+            padx = (0, 50),
+            pady = (0, 10))
+        self.weaponsCheckboxWidgets.append(self.combatShotgunCheckbox)
+        
+        # heavy assault rifle
+        heavyAssaultRifleCallback = partial(self.weaponsCallback, 'heavyAssaultRifle')
+        heavyAssaultRifleTooltipText = self.inventory.weapons.heavyAssaultRifle.description
+        self.heavyAssaultRifleCheckbox = Checkbox(
+            parent = self.weaponsCheckboxFrame1, 
+            text = 'Heavy Assault Rifle', 
+            column = 0, 
+            row = 2, 
+            command = heavyAssaultRifleCallback,
+            tooltipMsg = heavyAssaultRifleTooltipText,
+            sticky = 'w',
+            padx = (0, 50),
+            pady = (0, 10))
+        self.weaponsCheckboxWidgets.append(self.heavyAssaultRifleCheckbox)
+        
+        # plasma rifle
+        plasmaRifleCallback = partial(self.weaponsCallback, 'plasmaRifle')
+        plasmaRifleTooltipText = self.inventory.weapons.plasmaRifle.description
+        self.plasmaRifleCheckbox = Checkbox(
+            parent = self.weaponsCheckboxFrame1, 
+            text = 'Plasma Rifle', 
+            column = 1, 
+            row = 0, 
+            command = plasmaRifleCallback,
+            tooltipMsg = plasmaRifleTooltipText,
+            sticky = 'w',
+            padx = (0, 50),
+            pady = (0, 10))
+        self.weaponsCheckboxWidgets.append(self.plasmaRifleCheckbox)
+        
+        # rocket launcher
+        rocketLauncherCallback = partial(self.weaponsCallback, 'rocketLauncher')
+        rocketLauncherTooltipText = self.inventory.weapons.rocketLauncher.description
+        self.rocketLauncherCheckbox = Checkbox(
+            parent = self.weaponsCheckboxFrame1, 
+            text = 'Rocket Launcher', 
+            column = 1, 
+            row = 1, 
+            command = rocketLauncherCallback,
+            tooltipMsg = rocketLauncherTooltipText,
+            sticky = 'w',
+            padx = (0, 50),
+            pady = (0, 10))
+        self.weaponsCheckboxWidgets.append(self.rocketLauncherCheckbox)
+        
+        # super shotgun
+        superShotgunCallback = partial(self.weaponsCallback, 'superShotgun')
+        superShotgunTooltipText = self.inventory.weapons.superShotgun.description
+        self.superShotgunCheckbox = Checkbox(
+            parent = self.weaponsCheckboxFrame1, 
+            text = 'Super Shotgun', 
+            column = 1, 
+            row = 2, 
+            command = superShotgunCallback,
+            tooltipMsg = superShotgunTooltipText,
+            sticky = 'w',
+            padx = (0, 50),
+            pady = (0, 10))
+        self.weaponsCheckboxWidgets.append(self.superShotgunCheckbox)
+        
+        # gauss cannon
+        gaussCannonCallback = partial(self.weaponsCallback, 'gaussCannon')
+        gaussCannonTooltipText = self.inventory.weapons.gaussCannon.description
+        self.gaussCannonCheckbox = Checkbox(
+            parent = self.weaponsCheckboxFrame1, 
+            text = 'Gauss Cannon', 
+            column = 3, 
+            row = 0, 
+            command = gaussCannonCallback,
+            tooltipMsg = gaussCannonTooltipText,
+            sticky = 'w',
+            padx = (0, 0),
+            pady = (0, 10))
+        self.weaponsCheckboxWidgets.append(self.gaussCannonCheckbox)
+        
+        # chaingun
+        chaingunCallback = partial(self.weaponsCallback, 'chaingun')
+        chaingunTooltipText = self.inventory.weapons.chaingun.description
+        self.chaingunCheckbox = Checkbox(
+            parent = self.weaponsCheckboxFrame1, 
+            text = 'Chaingun', 
+            column = 3, 
+            row = 1, 
+            command = chaingunCallback,
+            tooltipMsg = chaingunTooltipText,
+            sticky = 'w',
+            padx = (0, 0),
+            pady = (0, 10))
+        self.weaponsCheckboxWidgets.append(self.chaingunCheckbox)
+        
+        # bfg-9000
+        bfg9000Callback = partial(self.weaponsCallback, 'bfg9000')
+        bfg9000TooltipText = self.inventory.weapons.bfg9000.description
+        self.bfg9000Checkbox = Checkbox(
+            parent = self.weaponsCheckboxFrame1, 
+            text = 'BFG-9000', 
+            column = 3, 
+            row = 2, 
+            command = bfg9000Callback,
+            tooltipMsg = bfg9000TooltipText,
+            sticky = 'w',
+            padx = (0, 0),
+            pady = (0, 10))
+        self.weaponsCheckboxWidgets.append(self.bfg9000Checkbox)
+    
+    def weaponsCallback(self, weaponItemName: str):
+        """ Toggles a WeaponItem's availability.  """
+        
+        # if not in available, add it; else, remove
+        found = False
+        for weaponItem in self.inventory.weapons.available:
+            if weaponItem.name == weaponItemName:
+                found = True
+                self.inventory.equipment.available.remove(weaponItem)
+                # clear toggleAll switch - all are no longer selected
+                if self.toggleAllEquipmentSwitch.get():
+                    self.toggleAllEquipmentSwitch.deselect()
+                break
+        if not found:
+            self.inventory.equipment.addToAvailable(weaponItemName)
+    
+    def toggleAllWeapons(self):
+        """ Adds/removes all weapons, and selects/deselects checkboxes accordingly.  """
+        
+        allSwitchOn = self.toggleAllWeaponsSwitch.get()
+        
+        if allSwitchOn:
+            self.inventory.weapons.addAllToAvailable()
+            # update UI - all weapon checkboxes
+            for each in self.weaponsCheckboxWidgets:
+                each.select()
+        else:
+            self.inventory.weapons.available.clear()
+            for each in self.weaponsCheckboxWidgets:
+                each.deselect()    
+    
+    def initRuneWidgets(self) -> None:
+        """ Creates widgets for the Runes inventory module. """
+        
+        parentTab = self.tabMenu.tab('Runes')
+        parentTab.columnconfigure(0, weight = 1)
+        
+        self.runesAvailableCheckboxWidgets = []
+        self.runesUpgradedCheckboxWidgets = []
+        self.runesPermEquipCheckboxWidgets = []
+        
+        self.runesHeaderLabel = ctk.CTkLabel(parentTab, font = self.headerMainFont, text = 'Runes')
+        self.runesHeaderLabel.grid(column = 0, row = 3, padx = 20, pady = (20, 10), columnspan = 2, sticky = 'nw')
+        
+        self.runesSwitchFrame = ctk.CTkFrame(parentTab, fg_color = 'transparent')
+        self.runesSwitchFrame.grid(column = 0, row =  4, pady = (0, 20))
+        
+        self.toggleAllRunesAvailableSwitch = ctk.CTkSwitch(
+            master = self.runesSwitchFrame, 
+            text = 'All Runes Unlocked', 
+            command = self.toggleAllRunesAvailable,
+            font = self.checkboxFont,
+            progress_color= RED,
+            switch_height = 16,
+            switch_width = 34)
+        self.toggleAllRunesAvailableSwitch.grid(column = 0, row = 0, sticky = 'w', padx = (0, 0), pady = (0, 0))
+        
+        self.toggleAllRunesUpgradedSwitch = ctk.CTkSwitch(
+            master = self.runesSwitchFrame, 
+            text = 'All Runes Upgraded', 
+            command = self.toggleAllRunesUpgraded,
+            font = self.checkboxFont,
+            progress_color= RED,
+            switch_height = 16,
+            switch_width = 34)
+        self.toggleAllRunesUpgradedSwitch.grid(column = 1, row = 0, sticky = 'w', padx = (20, 0), pady = (0, 0))
+        
+        self.toggleAllRunesPermEquipSwitch = ctk.CTkSwitch(
+            master = self.runesSwitchFrame, 
+            text = 'All Runes Permanently Equipped', 
+            command = self.toggleAllRunesPermEquip,
+            font = self.checkboxFont,
+            progress_color= RED,
+            switch_height = 16,
+            switch_width = 34)
+        self.toggleAllRunesPermEquipSwitch.grid(column = 2, row = 0, sticky = 'w', padx = (20, 0), pady = (0, 0))
+        
+        self.runesCheckboxFrame1 = ctk.CTkFrame(parentTab, fg_color = 'transparent', border_color = WHITE, border_width = 0)
+        self.runesCheckboxFrame1.grid(column = 0, row = 5, pady = (10, 0))
+        
+        # VACUUM
+        self.vacuumPanel = RunePanel(
+            parentApp = self, 
+            parentFrame = self.runesCheckboxFrame1, 
+            parentFrameColumn = 0,
+            parentFrameRow = 0,
+            runePerkName = 'vacuum')
+        
+        # DAZED AND CONFUSED
+        self.dazedAndConfusedPanel = RunePanel(
+            parentApp = self, 
+            parentFrame = self.runesCheckboxFrame1, 
+            parentFrameColumn = 1,
+            parentFrameRow = 0,
+            runePerkName = 'dazedAndConfused',
+            panelPadX = (30, 0))
+        
+        # AMMO BOOST
+        self.ammoBoostPanel = RunePanel(
+            parentApp = self, 
+            parentFrame = self.runesCheckboxFrame1, 
+            parentFrameColumn = 2,
+            parentFrameRow = 0,
+            runePerkName = 'ammoBoost',
+            panelPadX = (30, 0))
+    
+
+    
+    def runeAvailableCallback(self, runePerkName: str):
+        """ """
+        pass
+    
+    def runePermEquipCallback(self, runePerkName: str):
+        """ """
+        pass
+    
+    def runeUpgradedCallback(self, runePerkName: str):
+        """ """
+        pass
+    
+    def toggleAllRunesAvailable(self):
+        """ """
+        pass
+    
+    def toggleAllRunesUpgraded(self):
+        """ """
+        pass
+    
+    def toggleAllRunesPermEquip(self):
+        """ """
+        pass
+    
     def modifyTestFunc(self):
         """ purely for testing """
         
@@ -811,21 +1247,88 @@ class DropdownMenu(ctk.CTkOptionMenu):
 class Checkbox(ctk.CTkCheckBox):
     """ App checkbox widget base class. """
 
-    def __init__(self, parent, text, column, row, command, tooltipMsg, padx: tuple = (20, 0), pady: tuple = (0, 0), sticky = None):
+    def __init__(self, parent, text, column, row, command, tooltipMsg, padx: tuple = (20, 0), pady: tuple = (0, 0), sticky = None, state = 'normal', font = None, checkboxHeight = 24, checkboxWidth = 24):
         
-        self.checkboxFont = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['Checkboxes'])
+        if font is None:
+            font = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['Checkboxes'])
         
         super().__init__(
             master = parent,
             fg_color = RED,
             hover_color = RED_HIGHLIGHT,
-            font = self.checkboxFont,
+            font = font,
             text = text,
-            command = command)
+            command = command,
+            state = state,
+            checkbox_height = checkboxHeight,
+            checkbox_width = checkboxWidth)
         
         self.grid(column = column, row = row, padx = padx, pady = pady, sticky = sticky)
         tooltipText = tooltipMsg
         CTkToolTip(self, message = tooltipText)
+
+
+class RunePanel():
+    """ """
+    
+    def __init__(self, parentApp, parentFrame, parentFrameColumn, parentFrameRow, runePerkName: str, panelPadX: tuple = (0, 0), panelPadY: tuple = (0, 0)):
+        
+        self.runePerk = parentApp.inventory.runes.getRunePerkFromName(runePerkName)
+        if self.runePerk is None:
+            return
+        
+        # rune: available / header
+        runeAvailableCallback = partial(parentApp.runeAvailableCallback, runePerkName)
+        self.runeHeaderCheckbox = ctk.CTkCheckBox(
+            master = parentFrame, 
+            font = parentApp.subheaderMainFont, 
+            text = RUNE_PANEL_DATA[self.runePerk.name]['fName'],
+            command = runeAvailableCallback,
+            fg_color = RED,
+            hover_color = RED_HIGHLIGHT)
+        self.runeHeaderCheckbox.grid(column = parentFrameColumn, row = parentFrameRow, padx = panelPadX, pady = (0, 10), sticky = 'w')
+        CTkToolTip(self.runeHeaderCheckbox, message = self.runePerk.description)
+        
+        self.runeSubOptionFrame = ctk.CTkFrame(parentFrame, fg_color = 'transparent', border_color= WHITE, border_width=0)
+        self.runeSubOptionFrame.grid(column = parentFrameColumn, row = parentFrameRow + 1, padx = panelPadX, sticky = 'w')
+        
+        runeImage = ctk.CTkImage(light_image = Image.open(RUNE_PANEL_DATA[runePerkName]['imagePath']), dark_image = Image.open(RUNE_PANEL_DATA[runePerkName]['imagePath']), size = (70, 70))
+        runeImageLabel = ctk.CTkLabel(self.runeSubOptionFrame, image = runeImage, text = '')
+        runeImageLabel.grid(column = 0, row = 0, padx = (0, 0), pady = (0, 0), rowspan = 2, sticky = 'nsew')
+        
+        # rune: upgraded
+        runeUpgradedCallback = partial(parentApp.runeUpgradedCallback, 'vacuum')
+        runeUpgradedTooltipText = self.runePerk.upgradeDescription
+        self.runeUpgradedCheckbox = Checkbox(
+            parent = self.runeSubOptionFrame, 
+            text = 'Upgraded', 
+            font = parentApp.runeSubOptionFont,
+            column = 1, 
+            row = 0, 
+            command = runeUpgradedCallback,
+            tooltipMsg = runeUpgradedTooltipText,
+            sticky = 'w',
+            pady = (0, 0),
+            checkboxHeight = 20,
+            checkboxWidth = 20)
+        parentApp.runesUpgradedCheckboxWidgets.append(self.runeUpgradedCheckbox)
+        
+        # rune: permanent equip
+        runePermEquipCallback = partial(parentApp.runePermEquipCallback, 'vacuum')
+        permEquipTooltipMsg = 'Permanently equip rune without it taking up a slot.'
+        self.runePermEquipCheckbox = Checkbox(
+            parent = self.runeSubOptionFrame, 
+            text = 'Permanently Equipped', 
+            font = parentApp.runeSubOptionFont,
+            column = 1, 
+            row = 1, 
+            command = runePermEquipCallback,
+            tooltipMsg = permEquipTooltipMsg,
+            sticky = 'w',
+            pady = (0, 0),
+            checkboxHeight = 20,
+            checkboxWidth = 20)
+        parentApp.runesPermEquipCheckboxWidgets.append(self.runePermEquipCheckbox)
 
 
 if __name__ == '__main__':

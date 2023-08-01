@@ -192,7 +192,14 @@ class Runes(InventoryModule):
         rune = getattr(self, runeName)
         if isinstance(rune, RunePerk):
             self.addToAvailable(runeName)
-            rune.runePermanentEquip = isPermanent         
+            rune.runePermanentEquip = isPermanent  
+            
+    def getRunePerkFromName(self, runeName: str) -> RunePerk | None:
+        """ """
+        rune = getattr(self, runeName)
+        if isinstance(rune, RunePerk):
+            return rune
+               
     
     vacuum = RunePerk(
         name = 'vacuum', 
@@ -201,7 +208,7 @@ class Runes(InventoryModule):
         upgradeDescription = 'Further increases the range for absorbing dropped items.')
     
     dazedAndConfused = RunePerk(
-        name = 'dazedAndConfusedRune', 
+        name = 'dazedAndConfused', 
         path = '"perk/zion/player/sp/enviroment_suit/modify_enemy_stagger_duration"',
         description = 'Increases how long demons remain in a stagger state.',
         upgradeDescription = 'Demon staggers last even longer.')
@@ -274,7 +281,8 @@ class Equipment(InventoryModule):
     moduleName: str = 'Equipment'
     elementType: object = EquipmentItem
     
-    doubleJumpThrustBoots = EquipmentItem('doubleJumpThrustBoots',  "jumpboots/base", equip = True)
+    doubleJumpThrustBoots = EquipmentItem('doubleJumpThrustBoots',  "jumpboots/base", equip = True,
+                                          description = 'A UAC-engineered device which enables a second thruster-based mid-air jump to be performed, greatly increasing maximum jumping distance and height.')
     fragGrenade = EquipmentItem('fragGrenade', '"throwable/zion/player/sp/frag_grenade"', equip = True)
     decoyHologram = EquipmentItem('decoyHologram', '"decoyhologram/equipment"')
     siphonGrenade = EquipmentItem('siphonGrenade', '"throwable/zion/player/sp/siphon_grenade"')
@@ -289,7 +297,8 @@ class Weapons(InventoryModule):
     elementType: object = WeaponItem
     
     fists = WeaponItem('fists', '"weapon/zion/player/sp/fists"')
-    chainsaw = WeaponItem('chainsaw', '"weapon/zion/player/sp/chainsaw"')
+    chainsaw = WeaponItem('chainsaw', '"weapon/zion/player/sp/chainsaw"',
+                          description= 'The Chainsaw is a specialized melee weapon.\nUsing the Chainsaw requires fuel - the bigger the demon, the more you need.\nCutting apart a demon with the Chainsaw will always drop a surplus of ammunition.')
     pistol = WeaponItem('pistol', '"weapon/zion/player/sp/pistol"', equip = True)
     combatShotgun = WeaponItem('combatShotgun', '"weapon/zion/player/sp/shotgun"')
     heavyAssaultRifle = WeaponItem('heavyAssaultRifle', '"weapon/zion/player/sp/heavy_rifle_heavy_ar"', equipReserve = True)

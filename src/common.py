@@ -58,6 +58,12 @@ ARGENT_HEALTH_LEVELS = {0: 'Default (100)', 1: 'Level 1 (125)', 2: 'Level 2 (150
 ARGENT_ARMOR_LEVELS = {0: 'Default (50)', 1: 'Level 1 (75)', 2: 'Level 2 (100)', 3: 'Level 3 (125)', 4: 'Level 4 (150)'} 
 ARGENT_AMMO_LEVELS = {0: 'Default', 1: 'Level 1', 2: 'Level 2', 3: 'Level 3', 4: 'Level 4'} 
 
+RUNE_PANEL_DATA = {
+    'vacuum': {'fName': 'Vacuum', 'imagePath' : 'res/images/rune_vacuum.png'}, 
+    'dazedAndConfused': {'fName': 'Dazed and Confused', 'imagePath' : 'res/images/rune_vacuum.png'},
+    'ammoBoost': {'fName': 'Ammo Boost', 'imagePath' : 'res/images/rune_vacuum.png'}
+    }
+
 BASE_ITEM = {'researchGroups' : '"main"', 'equip' : 'true'}
 
 # utility functions

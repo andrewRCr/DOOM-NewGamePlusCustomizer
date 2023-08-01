@@ -104,6 +104,7 @@ class InventoryItem(InventoryElement):
     """ Non-perk inventory element base class. Children are EquipmentItem, WeaponItem, and AmmoItem. """
 
     applyAfterLoadout: Optional[bool] = None
+    description: Optional[str] = None
 
 
 @dataclass
