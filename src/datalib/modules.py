@@ -120,7 +120,7 @@ class PraetorSuitUpgrades(InventoryModule):
         description = 'The automap reveals exploration items in a wider radius.',
         unlockable = '"researchprojects/find_collectibles_1"')
     secretSense = PraetorPerk(
-        name = 'selfPreservation', 
+        name = 'secretSense', 
         path = '"perk/zion/player/sp/enviroment_suit/automap_2"',
         description = 'The automap compass pulses when nearby a secret.')
     fullView = PraetorPerk(

@@ -165,8 +165,8 @@ class App(ctk.CTk):
         
         # path status info
         cDefaultPath = r'C:\Program Files (x86)\Steam\steamapps\common\DOOM'
-        if os.path.exists(cDefaultPath):
-            self.doomInstallationPath = cDefaultPath
+        # if os.path.exists(cDefaultPath):
+        #     self.doomInstallationPath = cDefaultPath
         
         outputPathStr = 'NOT FOUND'
         if self.doomInstallationPath:
@@ -569,17 +569,14 @@ class App(ctk.CTk):
         allSwitchOn = self.toggleAllPraetorSwitch.get()
         
         if allSwitchOn:
-            self.inventory.praetorSuitUpgrades.addAllToAvailable()   
+            self.inventory.praetorSuitUpgrades.addAllToAvailable()
             # update UI - all praetor checkboxes
             for each in self.praetorCheckboxWidgets:
                 each.select()
         else:
             self.inventory.praetorSuitUpgrades.available.clear()
             for each in self.praetorCheckboxWidgets:
-                each.deselect()
-                
-        for each in self.inventory.praetorSuitUpgrades.available:
-            print(each.name)         
+                each.deselect()      
             
     def modifyTestFunc(self):
         """ purely for testing """
@@ -622,38 +619,28 @@ class App(ctk.CTk):
         
         # if 'cancel' wasn't selected
         if len(selectedDirStr) > 0: 
+            self.outputPathLabel.configure(text = selectedDirStr + r'/Mods')
             self.doomInstallationPath = selectedDirStr
-            self.outputPathLabel.configure(text = self.doomInstallationPath + r'/Mods')
-        
+
         if self.popupMsgWindow:
             self.popupMsgWindow.destroy()
        
     def generateMod(self):
         """ Top-level function for generating final, usable mod output file from current app values. """
-
-        # look for c:\ DOOM installation and Mods dir
         
         if self.doomInstallationPath is None:
-        # PRODUCTION VERSION
-        # cPath = r'C:\Program Files (x86)\Steam\steamapps\common\DOOM'
-        # if os.path.exists(cPath):
-        #     topLevelPath = r'C:\Program Files (x86)\Steam\steamapps\common\DOOM\Mods'
-        #     if not os.path.exists(topLevelPath):
-        #         os.makedirs(topLevelPath)
-        # DEBUG VERSION
-        # topLevelPath = r'.\Mods'
-        # if not os.path.exists(topLevelPath):
-        #         os.makedirs(topLevelPath)
-        # c:\ DOOM installation not found; need path
+            # c:\ DOOM installation wasn't found during app init; need path
             pygame.mixer.music.load('res/sounds/dsoof.wav')
             pygame.mixer.music.play(loops = 0)
             message = 'Local C:/ installation of DOOM not found. Browse for /DOOM install directory?'
-            self.createPopupMessage(PopupType.PT_PATH, 0, 0, message)
+            self.createPopupMessage(PopupType.PT_PATH, -60, -100, message)
             return
             
         else:
             modSubDir = r'\Mods'
             topLevelPath = self.doomInstallationPath + modSubDir
+            if not os.path.exists(topLevelPath):
+                os.makedirs(topLevelPath)
 
         # generate dir structure
         generatedPath = r'generated\decls\devinvloadout\devinvloadout\sp'
@@ -668,7 +655,7 @@ class App(ctk.CTk):
         zipName = 'Custom New Game Plus'
         shutil.make_archive(zipName, 'zip', '.', 'generated')
         
-        # place in top level path (hopefully local DOOM installation's /Mods dir, else program root)
+        # place in top level path
         outputFileSource = zipName + '.zip'
         outputFileDest = topLevelPath
         shutil.copy(outputFileSource, outputFileDest)
@@ -783,7 +770,7 @@ class promptPopupMsg(popupMessage):
         super().__init__(
             parent = parent,
             width = 520,
-            height = 120,
+            height = 130,
             xOffset = xOffset,
             yOffset = yOffset,
             message = message)
@@ -792,16 +779,16 @@ class promptPopupMsg(popupMessage):
                                     dark_image = Image.open('res/images/info.png'))
       
         self.imageLabel = ctk.CTkLabel(self.popupFrame, image = messageImage, text = '')
-        self.imageLabel.grid(column = 0, row = 0, padx = (10, 0), pady = (20, 0))
+        self.imageLabel.grid(column = 0, row = 0, padx = (30, 0), pady = (30, 0))
 
         self.messageLabel = ctk.CTkLabel(self.popupFrame, font = self.popupFont, text = f'{message}', wraplength= 400, padx = 0, pady = 0)
-        self.messageLabel.grid(column = 1, row = 0, padx = (5, 20), pady = 10, sticky = 'w')
+        self.messageLabel.grid(column = 1, row = 0, padx = (30, 0), pady = (30, 0), sticky = 'w', columnspan = 2)
 
-        self.browseButton = ctk.CTkButton(self.popupFrame, font = self.popupFont, text = 'Browse', fg_color = RED, hover_color = RED_HIGHLIGHT, command = parent.promptUserForPath)
-        self.browseButton.grid(column = 1, row = 1, padx = (0, 0), pady = (0, 15))
+        self.browseButton = ctk.CTkButton(self.popupFrame, width = 80, font = self.popupFont, text = 'Browse', fg_color = RED, hover_color = RED_HIGHLIGHT, command = parent.promptUserForPath)
+        self.browseButton.grid(column = 1, row = 1, padx = (40, 0), pady = (15, 15), sticky = 'e')
         
-        self.cancelButton = ctk.CTkButton(self.popupFrame, font = self.popupFont, text = 'Cancel', fg_color = RED, hover_color = RED_HIGHLIGHT, command = self.destroy)
-        self.cancelButton.grid(column = 2, row = 1, padx = (5, 0), pady = (0, 15))
+        self.cancelButton = ctk.CTkButton(self.popupFrame, width = 80, font = self.popupFont, text = 'Cancel', fg_color = LIGHT_GRAY, hover_color = RED_HIGHLIGHT, command = self.destroy)
+        self.cancelButton.grid(column = 2, row = 1, padx = (10, 0), pady = (15, 15), sticky = 'w')
     
 
 class DropdownMenu(ctk.CTkOptionMenu):
