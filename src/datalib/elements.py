@@ -6,7 +6,7 @@ elements.py:
 """
 
 import abc
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from typing import Any, Optional
 
 from common import *

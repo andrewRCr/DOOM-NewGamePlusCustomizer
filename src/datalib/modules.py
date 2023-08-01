@@ -2,7 +2,7 @@
 modules.py: 
 - represent a grouping of inventory data
 - InventoryModules consist of InventoryElements
-- if these elements are added to their module's Available list, the player starts with them @ new game
+- if these elements are added to their module's 'available' list, the player starts with them @ new game
 - note: the typo in 'enviroment' is present in id's source, and so is here intentionally
 """
 
@@ -37,6 +37,19 @@ class InventoryModule(metaclass = abc.ABCMeta):
             element = getattr(self, inventoryElementName)
             if type(element) is self.elementType and element not in self.available:
                 self.available.append(element)
+     
+    @classmethod 
+    def all(cls):
+        return [value for name, value in vars(cls).items()]
+              
+    def addAllToAvailable(self):
+        """ Add all possibles elements to module's available pool, if validated. """
+        
+        allMembers = self.all()
+        for each in allMembers:
+            if type(each) is self.elementType and each not in self.available:
+                self.available.append(each)
+    
 
 
 @dataclass
