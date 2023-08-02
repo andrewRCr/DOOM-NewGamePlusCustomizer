@@ -946,7 +946,8 @@ class App(ctk.CTk):
             font = self.checkboxFont,
             progress_color= RED,
             switch_height = 16,
-            switch_width = 34)
+            switch_width = 34,
+            state = 'disabled')
         self.toggleAllRunesUpgradedSwitch.grid(column = 1, row = 0, sticky = 'w', padx = (20, 0), pady = (0, 0))
         
         self.toggleAllRunesPermEquipSwitch = ctk.CTkSwitch(
@@ -956,11 +957,12 @@ class App(ctk.CTk):
             font = self.checkboxFont,
             progress_color= RED,
             switch_height = 16,
-            switch_width = 34)
+            switch_width = 34,
+            state = 'disabled')
         self.toggleAllRunesPermEquipSwitch.grid(column = 2, row = 0, sticky = 'w', padx = (20, 0), pady = (0, 0))
         
         self.runesCheckboxFrame1 = ctk.CTkFrame(parentTab, fg_color = 'transparent', border_color = WHITE, border_width = 0)
-        self.runesCheckboxFrame1.grid(column = 0, row = 5, pady = (10, 0))
+        self.runesCheckboxFrame1.grid(column = 0, row = 5, pady = (10, 10))
         
         # VACUUM
         self.vacuumPanel = RunePanel(
@@ -987,32 +989,211 @@ class App(ctk.CTk):
             parentFrameRow = 0,
             runePerkName = 'ammoBoost',
             panelPadX = (30, 0))
-    
-
-    
+        
+        self.runesCheckboxFrame2 = ctk.CTkFrame(parentTab, fg_color = 'transparent', border_color = WHITE, border_width = 0)
+        self.runesCheckboxFrame2.grid(column = 0, row = 6, pady = (10, 10))
+        
+        # EQUIPMENT POWER
+        self.equipmentPowerPanel = RunePanel(
+            parentApp = self, 
+            parentFrame = self.runesCheckboxFrame2, 
+            parentFrameColumn = 0,
+            parentFrameRow = 0,
+            runePerkName = 'equipmentPower')
+        
+        # SEEK AND DESTROY
+        self.seekAndDestroyPanel = RunePanel(
+            parentApp = self, 
+            parentFrame = self.runesCheckboxFrame2, 
+            parentFrameColumn = 1,
+            parentFrameRow = 0,
+            runePerkName = 'seekAndDestroy',
+            panelPadX = (30, 0))
+        
+        # SAVAGERY
+        self.savageryPanel = RunePanel(
+            parentApp = self, 
+            parentFrame = self.runesCheckboxFrame2, 
+            parentFrameColumn = 2,
+            parentFrameRow = 0,
+            runePerkName = 'savagery',
+            panelPadX = (30, 0))
+        
+        self.runesCheckboxFrame3 = ctk.CTkFrame(parentTab, fg_color = 'transparent', border_color = WHITE, border_width = 0)
+        self.runesCheckboxFrame3.grid(column = 0, row = 7, pady = (10, 10))
+        
+        # IN-FLIGHT MOBILITY
+        self.inFlightMobilityPanel = RunePanel(
+            parentApp = self, 
+            parentFrame = self.runesCheckboxFrame3, 
+            parentFrameColumn = 0,
+            parentFrameRow = 0,
+            runePerkName = 'inFlightMobility')
+        
+        # ARMORED OFFENSIVE
+        self.armoredOffensivePanel = RunePanel(
+            parentApp = self, 
+            parentFrame = self.runesCheckboxFrame3, 
+            parentFrameColumn = 1,
+            parentFrameRow = 0,
+            runePerkName = 'armoredOffensive',
+            panelPadX = (30, 0))
+        
+        # BLOOD FUELED
+        self.bloodFueledPanel = RunePanel(
+            parentApp = self, 
+            parentFrame = self.runesCheckboxFrame3, 
+            parentFrameColumn = 2,
+            parentFrameRow = 0,
+            runePerkName = 'bloodFueled',
+            panelPadX = (30, 0))
+        
+        self.runesCheckboxFrame4 = ctk.CTkFrame(parentTab, fg_color = 'transparent', border_color = WHITE, border_width = 0)
+        self.runesCheckboxFrame4.grid(column = 0, row = 8, pady = (10, 0))
+        
+        # INTIMACY IS BEST
+        self.intimacyIsBestPanel = RunePanel(
+            parentApp = self, 
+            parentFrame = self.runesCheckboxFrame4, 
+            parentFrameColumn = 0,
+            parentFrameRow = 0,
+            runePerkName = 'intimacyIsBest')
+        
+        # RICH GET RICHER
+        self.richGetRicherPanel = RunePanel(
+            parentApp = self, 
+            parentFrame = self.runesCheckboxFrame4, 
+            parentFrameColumn = 1,
+            parentFrameRow = 0,
+            runePerkName = 'richGetRicher',
+            panelPadX = (30, 0))
+        
+        # SAVING THROW
+        self.savingThrowPanel = RunePanel(
+            parentApp = self, 
+            parentFrame = self.runesCheckboxFrame4, 
+            parentFrameColumn = 2,
+            parentFrameRow = 0,
+            runePerkName = 'savingThrow',
+            panelPadX = (30, 0))
+     
     def runeAvailableCallback(self, runePerkName: str):
-        """ """
-        pass
-    
-    def runePermEquipCallback(self, runePerkName: str):
-        """ """
-        pass
+        """ Toggles a RunePerk's availability.  """
+        
+        runePanel = RUNE_PANEL_DATA[runePerkName]['panel']
+        
+        # if not in available, add it; else, remove
+        found = False
+        for runePerk in self.inventory.runes.available:
+            if runePerk.name == runePerkName:
+                found = True
+                self.inventory.runes.available.remove(runePerk)
+                # clear toggleAll switch - all are no longer selected
+                if self.toggleAllRunesAvailableSwitch.get():
+                    self.toggleAllRunesAvailableSwitch.deselect()
+                # disable sub-options
+                runePanel.runeUpgradedCheckbox.configure(state = 'disabled')
+                runePanel.runePermEquipCheckbox.configure(state = 'disabled')
+                break
+        if not found:
+            self.inventory.runes.addToAvailable(runePerkName)
+            runePanel.runeUpgradedCheckbox.configure(state = 'normal')
+            runePanel.runePermEquipCheckbox.configure(state = 'normal')       
     
     def runeUpgradedCallback(self, runePerkName: str):
-        """ """
-        pass
+        """ Toggles a RunePerk's Upgraded status. """
+        
+        rune = self.inventory.runes.getRunePerkFromName(runePerkName)
+        if rune:
+            if rune.applyUpgradesForPerk:
+                rune.applyUpgradesForPerk = False
+                # clear toggleAll switch - all are no longer selected
+                if self.toggleAllRunesUpgradedSwitch.get():
+                    self.toggleAllRunesUpgradedSwitch.deselect()
+            else:
+                rune.applyUpgradesForPerk = True
+    
+    def runePermEquipCallback(self, runePerkName: str):
+        """ Toggles a RunePerk's Permanently Equipped status. """
+        
+        rune = self.inventory.runes.getRunePerkFromName(runePerkName)
+        if rune:
+            if rune.runePermanentEquip:
+                rune.runePermanentEquip = False
+                # clear toggleAll switch - all are no longer selected
+                if self.toggleAllRunesPermEquipSwitch.get():
+                    self.toggleAllRunesPermEquipSwitch.deselect()
+            else:
+                rune.runePermanentEquip = True
     
     def toggleAllRunesAvailable(self):
-        """ """
-        pass
+        """ Adds/removes all RunePerks, and selects/deselects checkboxes + enables/disables sub-options accordingly.  """
+        
+        allSwitchOn = self.toggleAllRunesAvailableSwitch.get()
+        
+        if allSwitchOn:
+            self.inventory.runes.addAllToAvailable()
+            # update UI - all rune checkboxes
+            for each in self.runesAvailableCheckboxWidgets:
+                each.select()
+            for each in self.runesUpgradedCheckboxWidgets:
+                each.configure(state = 'normal')
+            for each in self.runesPermEquipCheckboxWidgets:
+                each.configure(state = 'normal')
+            # update UI - other 'toggle all' rune switches
+            self.toggleAllRunesUpgradedSwitch.configure(state = 'normal')
+            self.toggleAllRunesPermEquipSwitch.configure(state = 'normal')
+            
+        else:
+            # clear available status for all runes + update UI
+            self.inventory.runes.available.clear()
+            for each in self.runesAvailableCheckboxWidgets:
+                each.deselect()
+            # clear upgraded status for all runes + update UI
+            self.inventory.runes.setAllAreUpgraded(False)
+            for each in self.runesUpgradedCheckboxWidgets:
+                each.deselect()
+                each.configure(state = 'disabled')
+            # clear perm equip status for all runes + update UI
+            self.inventory.runes.setAllArePermEquip(False)
+            for each in self.runesPermEquipCheckboxWidgets:
+                each.deselect()
+                each.configure(state = 'disabled')
+            # update UI for sub-option toggle all switches
+            self.toggleAllRunesUpgradedSwitch.deselect() 
+            self.toggleAllRunesUpgradedSwitch.configure(state = 'disabled')
+            self.toggleAllRunesPermEquipSwitch.deselect()
+            self.toggleAllRunesPermEquipSwitch.configure(state = 'disabled')
     
     def toggleAllRunesUpgraded(self):
-        """ """
-        pass
-    
+        """ Toggles applyUpgradesForPerk flag for all RunePerks, and selects/deselects checkboxes + enables/disables sub-options accordingly. """
+                
+        allSwitchOn = self.toggleAllRunesUpgradedSwitch.get()
+        
+        if allSwitchOn:
+            self.inventory.runes.setAllAreUpgraded(True)
+            # updating UI - make each Upgraded checkbox selected
+            for each in self.runesUpgradedCheckboxWidgets:
+                each.select()
+        else:
+            self.inventory.runes.setAllAreUpgraded(False)
+            for each in self.runesUpgradedCheckboxWidgets:
+                each.deselect()
+            
     def toggleAllRunesPermEquip(self):
-        """ """
-        pass
+        """ Toggles runePermanentEquip flag for all RunePerks, and selects/deselects checkboxes + enables/disables sub-options accordingly. """
+        
+        allSwitchOn = self.toggleAllRunesPermEquipSwitch.get()
+        
+        if allSwitchOn:
+            self.inventory.runes.setAllArePermEquip(True)
+            # updating UI - make each Perm Equip checkbox selected
+            for each in self.runesPermEquipCheckboxWidgets:
+                each.select()
+        else:
+            self.inventory.runes.setAllArePermEquip(False)
+            for each in self.runesPermEquipCheckboxWidgets:
+                each.deselect()
     
     def modifyTestFunc(self):
         """ purely for testing """
@@ -1022,16 +1203,16 @@ class App(ctk.CTk):
         
         #self.inventory.praetorSuitUpgrades.addToAvailable('hazardProtection')
         
-        self.inventory.equipment.addToAvailable('doubleJumpThrustBoots')
-        self.inventory.equipment.addToAvailable('siphonGrenade')
+        # self.inventory.equipment.addToAvailable('doubleJumpThrustBoots')
+        # self.inventory.equipment.addToAvailable('siphonGrenade')
         
-        self.inventory.weapons.addToAvailable('combatShotgun')
-        self.inventory.ammo.addToAvailable('shells')
-        self.inventory.weaponMods.addToAvailable('pistol', 'chargeEfficiency')
+        # self.inventory.weapons.addToAvailable('combatShotgun')
+        # self.inventory.ammo.addToAvailable('shells')
+        # self.inventory.weaponMods.addToAvailable('pistol', 'chargeEfficiency')
         
-        self.inventory.runes.addToAvailable('vacuum')
-        self.inventory.runes.setIsUpgraded('vacuum', True)
-        self.inventory.runes.setIsPermanent('dazedAndConfused', True)
+        # self.inventory.runes.addToAvailable('vacuum')
+        # self.inventory.runes.setIsUpgraded('vacuum', True)
+        # self.inventory.runes.setIsPermanent('dazedAndConfused', True)
         
     def makeLevelInheritanceDecls(self, path):
         """ Creates decl files for each game level, with inventory inheriting from the previous level. """
@@ -1277,6 +1458,9 @@ class RunePanel():
         if self.runePerk is None:
             return
         
+        # add to static tracking data
+        RUNE_PANEL_DATA[runePerkName]['panel'] = self
+        
         # rune: available / header
         runeAvailableCallback = partial(parentApp.runeAvailableCallback, runePerkName)
         self.runeHeaderCheckbox = ctk.CTkCheckBox(
@@ -1288,6 +1472,7 @@ class RunePanel():
             hover_color = RED_HIGHLIGHT)
         self.runeHeaderCheckbox.grid(column = parentFrameColumn, row = parentFrameRow, padx = panelPadX, pady = (0, 10), sticky = 'w')
         CTkToolTip(self.runeHeaderCheckbox, message = self.runePerk.description)
+        parentApp.runesAvailableCheckboxWidgets.append(self.runeHeaderCheckbox)
         
         self.runeSubOptionFrame = ctk.CTkFrame(parentFrame, fg_color = 'transparent', border_color= WHITE, border_width=0)
         self.runeSubOptionFrame.grid(column = parentFrameColumn, row = parentFrameRow + 1, padx = panelPadX, sticky = 'w')
@@ -1310,7 +1495,8 @@ class RunePanel():
             sticky = 'w',
             pady = (0, 0),
             checkboxHeight = 20,
-            checkboxWidth = 20)
+            checkboxWidth = 20,
+            state = 'disabled')
         parentApp.runesUpgradedCheckboxWidgets.append(self.runeUpgradedCheckbox)
         
         # rune: permanent equip
@@ -1327,7 +1513,8 @@ class RunePanel():
             sticky = 'w',
             pady = (0, 0),
             checkboxHeight = 20,
-            checkboxWidth = 20)
+            checkboxWidth = 20,
+            state = 'disabled')
         parentApp.runesPermEquipCheckboxWidgets.append(self.runePermEquipCheckbox)
 
 

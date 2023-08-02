@@ -186,6 +186,14 @@ class Runes(InventoryModule):
         if isinstance(rune, RunePerk):
             rune.applyUpgradesForPerk = isUpgraded  
             
+    def setAllAreUpgraded(self, areUpgraded: bool):
+        """ Sets applyUpgradesForPerk flag for all runes. """
+        
+        allMembers = self.all()
+        for each in allMembers:
+            if type(each) is self.elementType and not each.applyUpgradesForPerk:
+                each.applyUpgradesForPerk = areUpgraded
+            
     def setIsPermanent(self, runeName: str, isPermanent: bool):
         """ Adds corresponding rune to available pool as permanently equipped (not taking up a slot), if validated. """
         
@@ -193,9 +201,18 @@ class Runes(InventoryModule):
         if isinstance(rune, RunePerk):
             self.addToAvailable(runeName)
             rune.runePermanentEquip = isPermanent  
-            
+    
+    def setAllArePermEquip(self, arePermanent: bool):
+        """ Sets runePermanentEquip flag for all runes. """
+        
+        allMembers = self.all()
+        for each in allMembers:
+            if type(each) is self.elementType and not each.runePermanentEquip:
+                each.runePermanentEquip = arePermanent
+           
     def getRunePerkFromName(self, runeName: str) -> RunePerk | None:
-        """ """
+        """ Returns runePerk object corresponding to passed name, if valid. """
+        
         rune = getattr(self, runeName)
         if isinstance(rune, RunePerk):
             return rune
