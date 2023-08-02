@@ -32,8 +32,10 @@ class InventoryElement(metaclass = abc.ABCMeta):
 class InventoryPerk(InventoryElement):
     """ Perk inventory element base class. Children are ArgentPerk, PraetorPerk, RunePerk and WeaponModPerk. """
     
+    fName: Optional[str] = None
     description: Optional[str] = None
     applicableWeapon: Optional[str] = None
+    applicableMod: Optional[str] = None
     applyUpgradesForPerk: Optional[bool] = None
     isRune: Optional[bool] = None
     runePermanentEquip: Optional[bool] = None
@@ -92,6 +94,8 @@ class WeaponModPerk(InventoryPerk):
     """ Represents a weapon mod and/or its upgrades. """
     
     applicableWeapon: str
+    applicableMod: str = 'isBaseMod'
+    fName: str
     equip: bool = False
     description: str = 'no description provided'
     

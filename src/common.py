@@ -73,6 +73,51 @@ RUNE_PANEL_DATA = {
     'savingThrow': {'fName': 'Saving Throw', 'imagePath' : 'res/images/rune_savingThrow.png', 'panel': None},
     }
 
+IMAGE_SCALE = .85
+
+WEAPON_MOD_PANEL_DATA = {
+        'pistol': {
+        'fName': 'Pistol',
+        'hasMods': False,
+        'imagePath': 'res/images/pistol.png',
+        'imageSize': (534, 284)},
+    'combatShotgun': {
+        'fName': 'Combat Shotgun',
+        'hasMods': True,
+        'imagePath': 'res/images/combatShotgun.png',
+        'imageSize': (800, 236)},
+    'heavyAssaultRifle': {
+        'fName': 'Heavy Assault Rifle',
+        'hasMods': True,
+        'imagePath': 'res/images/heavyAssaultRifle.png',
+        'imageSize': (int(770 * IMAGE_SCALE), int(294 * IMAGE_SCALE))},
+    'plasmaRifle': {
+        'fName': 'Plasma Rifle',
+        'hasMods': True,
+        'imagePath': 'res/images/plasmaRifle.png',
+        'imageSize': (int(630 * IMAGE_SCALE), int(296 * IMAGE_SCALE))},
+    'rocketLauncher': {
+        'fName': 'Rocket Launcher',
+        'hasMods': True,
+        'imagePath': 'res/images/rocketLauncher.png',
+        'imageSize': (800, 237)},
+    'superShotgun': {
+        'fName': 'Super Shotgun',
+        'hasMods': False,
+        'imagePath': 'res/images/superShotgun.png',
+        'imageSize': (800, 207)},
+    'gaussCannon': {
+        'fName': 'Gauss Cannon',
+        'hasMods': True,
+        'imagePath': 'res/images/gaussCannon.png',
+        'imageSize': (799, 172)},
+    'chaingun': {
+        'fName': 'Chaingun',
+        'hasMods': True,
+        'imagePath': 'res/images/chaingun.png',
+        'imageSize': (765, 285)},
+}
+
 BASE_ITEM = {'researchGroups' : '"main"', 'equip' : 'true'}
 
 # utility functions
