@@ -49,7 +49,6 @@ class InventoryModule(metaclass = abc.ABCMeta):
         for each in allMembers:
             if type(each) is self.elementType and each not in self.available:
                 self.available.append(each)
-    
 
 
 @dataclass
@@ -102,72 +101,102 @@ class PraetorSuitUpgrades(InventoryModule):
     # environmental resistance
     hazardProtection = PraetorPerk(
         name = 'hazardProtection', 
+        fName = 'Hazard Protection',
+        category = 'Environmental Resistance',
         path = '"perk/zion/player/sp/enviroment_suit/modify_enviromental_damage_1"',
         description = 'Damage taken from explosive barrels and environmental sources is reduced.')
     selfPreservation = PraetorPerk(
-        name = 'selfPreservation', 
+        name = 'selfPreservation',
+        fName = 'Self Preservation',
+        category = 'Environmental Resistance',
         path = '"perk/zion/player/sp/enviroment_suit/modify_enviromental_damage_2"',
         description = 'Self-inflicted damage from weapons is reduced.')
     barrelsOFun = PraetorPerk(
         name = 'barrelsOFun', 
+        fName = 'Barrels O\' Fun',
+        category = 'Environmental Resistance',
         path = '"perk/zion/player/sp/enviroment_suit/modify_enviromental_damage_3"',
         description = 'Immunity to damage from explosive barrels.')
 
     # area-scanning technology
     itemAwareness = PraetorPerk(
         name = 'itemAwareness', 
+        fName = 'Item Awareness',
+        category = 'Area-Scanning Technology',
         path = '"perk/zion/player/sp/enviroment_suit/automap_1"',
         description = 'The automap reveals exploration items in a wider radius.',
         unlockable = '"researchprojects/find_collectibles_1"')
     secretSense = PraetorPerk(
         name = 'secretSense', 
+        fName = 'Secret Sense',
+        category = 'Area-Scanning Technology',
         path = '"perk/zion/player/sp/enviroment_suit/automap_2"',
         description = 'The automap compass pulses when nearby a secret.')
     fullView = PraetorPerk(
         name = 'fullView', 
+        fName = 'Full View',
+        category = 'Area-Scanning Technology',
         path = '"perk/zion/player/sp/enviroment_suit/automap_3"',
         description = 'Exploration items are automatically displayed.')
     
     # equipment system
     quickCharge = PraetorPerk(
         name = 'quickCharge', 
+        fName = 'Quick Charge',
+        category = 'Equipment System',
         path = '"perk/zion/player/sp/enviroment_suit/equipment_1"',
         description = 'Equipment recharge duration is reduced.',
         unlockable = '"researchprojects/equipment_1"')
     stockUp = PraetorPerk(
         name = 'stockUp', 
+        fName = 'Stock Up',
+        category = 'Equipment System',
         path = 'perk/zion/player/sp/enviroment_suit/equipment_2',
         description = 'The total number of equipment charges is increased.')
     rapidCharge = PraetorPerk(
         name = 'rapidCharge', 
+        fName = 'Rapid Charge',
+        category = 'Equipment System',
         path = 'perk/zion/player/sp/enviroment_suit/equipment_3',
         description = 'Recharge duration is further reduced.')
     
     # powerup effectiveness
     powerSurge = PraetorPerk(
         name = 'powerSurge', 
+        fName = 'Power Surge',
+        category = 'Powerup Effectiveness',
         path = '"perk/zion/player/sp/enviroment_suit/powerup_shockwave"',
         description = 'A blast wave is unleashed when a power-up expires.')
     healingPower = PraetorPerk(
         name = 'healingPower', 
+        fName = 'Healing Power',
+        category = 'Powerup Effectiveness',
         path = '"perk/zion/player/sp/enviroment_suit/powerup_health"',
         description = 'Health is restored to maximum when a power-up is activated.')
     powerExtender = PraetorPerk(
         name = 'powerExtender', 
+        fName = 'Power Extender',
+        category = 'Powerup Effectiveness',
         path = '"perk/zion/player/sp/enviroment_suit/modify_powerup_duration"',
         description = 'Power-up durations are increased.')
     
     # dexterity
     adept = PraetorPerk(
         name = 'adept', 
+        fName = 'Adept',
+        category = 'Dexterity',
         path = '"perk/zion/player/sp/enviroment_suit/dexterity_increase_1"',
         description = 'Weapon changing time is reduced.')
     quickHands = PraetorPerk(
         name = 'quickHands', 
+        fName = 'Quick Hands',
+        category = 'Dexterity',
         path = '"perk/zion/player/sp/enviroment_suit/dexterity_increase_2"',
         description = 'Ledge grabbing speed is increased.')
     hotSwap = PraetorPerk(
         name = 'hotSwap', 
+        fName = 'Hot Swap',
+        category = 'Dexterity',
         path = '"perk/zion/player/sp/enviroment_suit/dexterity_increase_3"',
         description = 'Weapon modification swap time is reduced.')
 
@@ -178,6 +207,8 @@ class Runes(InventoryModule):
     # metadata
     moduleName: str = 'Runes'
     elementType: object = RunePerk
+    upgradedRunes: list[RunePerk] = field(default_factory = list)
+    permEquipRunes: list[RunePerk] = field(default_factory = list)
     
     def setIsUpgraded(self, runeName: str, isUpgraded: bool):
         """ Sets corresponding rune's applyUpgradesForPerk value, if validated. """
@@ -215,8 +246,7 @@ class Runes(InventoryModule):
         
         rune = getattr(self, runeName)
         if isinstance(rune, RunePerk):
-            return rune
-               
+            return rune          
     
     vacuum = RunePerk(
         name = 'vacuum', 
@@ -298,11 +328,29 @@ class Equipment(InventoryModule):
     moduleName: str = 'Equipment'
     elementType: object = EquipmentItem
     
-    doubleJumpThrustBoots = EquipmentItem('doubleJumpThrustBoots',  "jumpboots/base", equip = True,
-                                          description = 'A UAC-engineered device which enables a second thruster-based mid-air jump to be performed, greatly increasing maximum jumping distance and height.')
-    fragGrenade = EquipmentItem('fragGrenade', '"throwable/zion/player/sp/frag_grenade"', equip = True)
-    decoyHologram = EquipmentItem('decoyHologram', '"decoyhologram/equipment"')
-    siphonGrenade = EquipmentItem('siphonGrenade', '"throwable/zion/player/sp/siphon_grenade"')
+    doubleJumpThrustBoots = EquipmentItem(
+        name = 'doubleJumpThrustBoots', 
+        fName = 'Delta V Jump-Boots',
+        path = "jumpboots/base", 
+        equip = True,
+        description = 'A UAC-engineered device which enables a second thruster-based mid-air jump\n' 
+        + 'to be performed, greatly increasing maximum jumping distance and height.')
+    decoyHologram = EquipmentItem(
+        name = 'decoyHologram',
+        fName = 'Decoy Hologram',
+        path ='"decoyhologram/equipment"',
+        description = '')
+    fragGrenade = EquipmentItem(
+        name = 'fragGrenade',
+        fName = 'Frag Grenade', 
+        path = '"throwable/zion/player/sp/frag_grenade"', 
+        equip = True,
+        description = '')
+    siphonGrenade = EquipmentItem(
+        name = 'siphonGrenade', 
+        fName = 'Siphon Grenade',
+        path = '"throwable/zion/player/sp/siphon_grenade"',
+        description = '')
      
         
 @dataclass
@@ -313,18 +361,54 @@ class Weapons(InventoryModule):
     moduleName: str = 'Weapons'
     elementType: object = WeaponItem
     
-    fists = WeaponItem('fists', '"weapon/zion/player/sp/fists"')
-    chainsaw = WeaponItem('chainsaw', '"weapon/zion/player/sp/chainsaw"',
-                          description= 'The Chainsaw is a specialized melee weapon.\nUsing the Chainsaw requires fuel - the bigger the demon, the more you need.\nCutting apart a demon with the Chainsaw will always drop a surplus of ammunition.')
-    pistol = WeaponItem('pistol', '"weapon/zion/player/sp/pistol"', equip = True)
-    combatShotgun = WeaponItem('combatShotgun', '"weapon/zion/player/sp/shotgun"')
-    heavyAssaultRifle = WeaponItem('heavyAssaultRifle', '"weapon/zion/player/sp/heavy_rifle_heavy_ar"', equipReserve = True)
-    plasmaRifle = WeaponItem('plasmaRifle', '"weapon/zion/player/sp/plasma_rifle"')
-    rocketLauncher = WeaponItem('rocketLauncher', '"weapon/zion/player/sp/rocket_launcher"')
-    superShotgun = WeaponItem('superShotgun', '"weapon/zion/player/sp/double_barrel"')
-    gaussCannon = WeaponItem('gaussCannon', "weapon/zion/player/sp/gauss_rifle")
-    chaingun = WeaponItem('chaingun', '"weapon/zion/player/sp/chaingun"')
-    bfg9000 = WeaponItem('bfg9000', "weapon/zion/player/sp/bfg")
+    fists = WeaponItem(
+        name = 'fists', 
+        path = '"weapon/zion/player/sp/fists"')
+    chainsaw = WeaponItem(
+        name = 'chainsaw', 
+        fName = 'Chainsaw', 
+        path = '"weapon/zion/player/sp/chainsaw"',
+        description= 'The Chainsaw is a specialized melee weapon.\n' 
+        + 'Using the Chainsaw requires fuel - the bigger the demon, the more you need.\n' 
+        + 'Cutting apart a demon with the Chainsaw will always drop a surplus of ammunition.')
+    pistol = WeaponItem(
+        name = 'pistol',
+        fName = 'Pistol', 
+        path = '"weapon/zion/player/sp/pistol"', 
+        equip = True)
+    combatShotgun = WeaponItem(
+        name = 'combatShotgun', 
+        fName = 'Combat Shotgun',
+        path = '"weapon/zion/player/sp/shotgun"')
+    heavyAssaultRifle = WeaponItem(
+        name = 'heavyAssaultRifle',
+        fName = 'Heavy Assault Rifle',
+        path = '"weapon/zion/player/sp/heavy_rifle_heavy_ar"', 
+        equipReserve = True)
+    plasmaRifle = WeaponItem(
+        name = 'plasmaRifle', 
+        fName = 'Plasma Rifle',
+        path = '"weapon/zion/player/sp/plasma_rifle"')
+    rocketLauncher = WeaponItem(
+        name = 'rocketLauncher',
+        fName = 'Rocket Launcher',
+        path = '"weapon/zion/player/sp/rocket_launcher"')
+    superShotgun = WeaponItem(
+        name = 'superShotgun',
+        fName = 'Super Shotgun',
+        path = '"weapon/zion/player/sp/double_barrel"')
+    gaussCannon = WeaponItem(
+        name = 'gaussCannon', 
+        fName = 'Gauss Cannon',
+        path = "weapon/zion/player/sp/gauss_rifle")
+    chaingun = WeaponItem(
+        name = 'chaingun', 
+        fName = 'Chaingun',
+        path = '"weapon/zion/player/sp/chaingun"')
+    bfg9000 = WeaponItem(
+        name = 'bfg9000', 
+        fName = 'BFG-9000', 
+        path = "weapon/zion/player/sp/bfg")
 
     # TODO: figure out what '"summonweapon/base"' is and when/why it needs to be included; it's before the BFG is added in a full loadout decl
     #summonWeapon = WeaponItem('summonWeapon', '"summonweapon/base"')
@@ -440,6 +524,7 @@ class WeaponMods(InventoryModule):
     chargedBurst = WeaponModPerk(
         name = 'chargedBurst',
         fName = 'Charged Burst',
+        applicableMod = 'isBaseMod',
         applicableWeapon = 'combatShotgun',
         path = '"perk/zion/player/sp/weapons/shotgun/secondary_charge_burst"',
         description = 'An Argent-charged compression reloader fires off a volley of three shells in a quick succession. The compression reloader component used to drive this fast firing is powered by Argent energy, and requires a cool down period after use.')
@@ -476,6 +561,7 @@ class WeaponMods(InventoryModule):
     explosiveShot = WeaponModPerk(
         name = 'explosiveShot',
         fName = 'Explosive Shot',
+        applicableMod = 'isBaseMod',
         applicableWeapon = 'combatShotgun',
         path = '"perk/zion/player/sp/weapons/shotgun/pop_rocket"',
         description = 'An alternate ammunition for the combat shotgun based on octanitrocubane explosive and a glycerin fuse. Shot embedded in the explosive is dispersed upon impact, creating an effect similar to the frag grenade, damaging targets over a wide area. This extends the weapon\'s utility against multiple targets.')
@@ -534,6 +620,7 @@ class WeaponMods(InventoryModule):
         name = 'tacticalScope',
         fName = 'Tactical Scope',
         applicableWeapon = 'heavyAssaultRifle',
+        applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/heavy_rifle_heavy_ar/zoom"',
         description = '')
     tacticalScope_uraniumCoating = WeaponModPerk(
@@ -570,6 +657,7 @@ class WeaponMods(InventoryModule):
         name = 'microMissiles',
         fName = 'Micro Missiles',
         applicableWeapon = 'heavyAssaultRifle',
+        applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/heavy_rifle_heavy_ar/burst_detonate"',
         description = '')
     microMissiles_ammoEfficient = WeaponModPerk(
@@ -607,6 +695,7 @@ class WeaponMods(InventoryModule):
         name = 'heatBlast',
         fName = 'Heat Blast',
         applicableWeapon = 'plasmaRifle',
+        applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/plasma_rifle/secondary_aoe"',
         description = '')
     heatBlast_superHeatedRounds = WeaponModPerk(
@@ -643,6 +732,7 @@ class WeaponMods(InventoryModule):
         name = 'stunBomb',
         fName = 'Stun Bomb',
         applicableWeapon = 'plasmaRifle',
+        applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/plasma_rifle/secondary_stun"',
         description = '')
     stunBomb_quickRecharge = WeaponModPerk(
@@ -680,6 +770,7 @@ class WeaponMods(InventoryModule):
         name = 'lockOnBurst',
         fName = 'Lock-On Burst',
         applicableWeapon = 'rocketLauncher',
+        applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/rocket_launcher/lock_on"',
         description = '')
     lockOnBurst_quickLock = WeaponModPerk(
@@ -709,6 +800,7 @@ class WeaponMods(InventoryModule):
         name = 'remoteDetonation',
         fName = 'Remote Detonation',
         applicableWeapon = 'rocketLauncher',
+        applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/rocket_launcher/detonate"',
         description = '')
     remoteDetonation_improvedWarhead = WeaponModPerk(
@@ -739,6 +831,7 @@ class WeaponMods(InventoryModule):
         name = 'precisionBolt',
         fName = 'Precision Bolt',
         applicableWeapon = 'gaussCannon',
+        applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/gauss_cannon/charged_sniper"',
         description = '')
     precisionBolt_energyEfficient = WeaponModPerk(
@@ -768,6 +861,7 @@ class WeaponMods(InventoryModule):
         name = 'siegeMode',
         fName = 'Siege Mode',
         applicableWeapon = 'gaussCannon',
+        applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/gauss_cannon/siege_mode"',
         description = '')
     siegeMode_outerBeam = WeaponModPerk(
@@ -798,6 +892,7 @@ class WeaponMods(InventoryModule):
         name = 'gatlingRotator',
         fName = 'Gatling Rotator',
         applicableWeapon = 'chaingun',
+        applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/chaingun/gatling"',
         description = '')
     gatlingRotator_improvedTorque = WeaponModPerk(
@@ -827,6 +922,7 @@ class WeaponMods(InventoryModule):
         name = 'mobileTurret',
         fName = 'Mobile Turret',
         applicableWeapon = 'chaingun',
+        applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/chaingun/turret"',
         description = '')
     mobileTurret_rapidDeployment = WeaponModPerk(

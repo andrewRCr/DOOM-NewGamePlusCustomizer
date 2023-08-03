@@ -59,6 +59,7 @@ class ArgentPerk(InventoryPerk):
 class PraetorPerk(InventoryPerk):
     """ Represent permanent suit upgrades provided by Praetor Tokens. """
     
+    category: str = 'no category provided'
     description: str = 'no description provided'
     unlockable: Optional[str] = None
     
@@ -94,7 +95,7 @@ class WeaponModPerk(InventoryPerk):
     """ Represents a weapon mod and/or its upgrades. """
     
     applicableWeapon: str
-    applicableMod: str = 'isBaseMod'
+    applicableMod: str = 'non-mod Upgrade'
     fName: str
     equip: bool = False
     description: str = 'no description provided'
@@ -107,6 +108,7 @@ class WeaponModPerk(InventoryPerk):
 class InventoryItem(InventoryElement):
     """ Non-perk inventory element base class. Children are EquipmentItem, WeaponItem, and AmmoItem. """
 
+    fName: Optional[str] = None
     applyAfterLoadout: Optional[bool] = None
     description: Optional[str] = None
 

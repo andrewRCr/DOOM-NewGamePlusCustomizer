@@ -54,9 +54,13 @@ tripleIndent = doubleIndent + indent
 quadIndent = tripleIndent + indent
 
 # static UI data
-ARGENT_HEALTH_LEVELS = {0: 'Default (100)', 1: 'Level 1 (125)', 2: 'Level 2 (150)', 3: 'Level 3 (175)', 4: 'Level 4 (200)'} 
-ARGENT_ARMOR_LEVELS = {0: 'Default (50)', 1: 'Level 1 (75)', 2: 'Level 2 (100)', 3: 'Level 3 (125)', 4: 'Level 4 (150)'} 
-ARGENT_AMMO_LEVELS = {0: 'Default', 1: 'Level 1', 2: 'Level 2', 3: 'Level 3', 4: 'Level 4'} 
+
+
+ARGENT_DROPDOWN_DATA = {
+    'healthCapacity': {'fName': 'Health:', 'Levels': {0: 'Default (100)', 1: 'Level 1 (125)', 2: 'Level 2 (150)', 3: 'Level 3 (175)', 4: 'Level 4 (200)'}, 'Dropdown': None},
+    'armorCapacity': {'fName': 'Armor:', 'Levels': {0: 'Default (50)', 1: 'Level 1 (75)', 2: 'Level 2 (100)', 3: 'Level 3 (125)', 4: 'Level 4 (150)'}, 'Dropdown': None},
+    'ammoCapacity' : {'fName': 'Ammo:', 'Levels': {0: 'Default', 1: 'Level 1', 2: 'Level 2', 3: 'Level 3', 4: 'Level 4'}, 'Dropdown': None}
+}
 
 RUNE_PANEL_DATA = {
     'vacuum': {'fName': 'Vacuum', 'imagePath' : 'res/images/rune_vacuum.png', 'panel': None}, 
@@ -118,7 +122,32 @@ WEAPON_MOD_PANEL_DATA = {
         'imageSize': (765, 285)},
 }
 
+# category to padx tuple map
+SUIT_PANEL_DATA = {
+    'Environmental Resistance': (0, 50),
+    'Area-Scanning Technology': (0, 30),
+    'Equipment System': (20, 0),
+    'Powerup Effectiveness': (0, 60),
+    'Dexterity': (0, 0)
+}
+
 BASE_ITEM = {'researchGroups' : '"main"', 'equip' : 'true'}
+
+LEVEL_INHERITANCE_MAP = {
+    'argent_tower': 'olympia_surface_1', 
+    'bfg_division': 'olympia_surface_2',
+    'blood_keep': 'argent_tower',
+    'blood_keep_b': 'emt',
+    'blood_keep_c': 'blood_keep_b',
+    'emt': 'lazarus',
+    'foundry': 'resource_operations',
+    'intro': 'base',
+    'lazarus': 'bfg_division',
+    'olympia_surface_1': 'foundry',
+    'olympia_surface_2': 'blood_keep',
+    'polar_core': 'blood_keep_c',
+    'resource_operations': 'intro',
+    'titan': 'polar_core'}
 
 # utility functions
 def clamp(num: int, smallest: int, largest: int) -> int:
