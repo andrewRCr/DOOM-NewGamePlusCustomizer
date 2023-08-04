@@ -9,9 +9,9 @@ app.py:
 """
 
 import contextlib
+from CTkToolTip import CTkToolTip
 import customtkinter as ctk
 from customtkinter import filedialog
-from CTkToolTip import CTkToolTip
 from functools import partial
 import os
 from PIL import Image
@@ -566,6 +566,10 @@ class App(ctk.CTk):
             # if all are available, update UI toggle all switch to reflect that
             if len(self.inventory.weapons.available) == 11:
                 self.toggleAllWeaponsSwitch.select()  
+            # add corresponding ammo to available, if not
+            ammoType = self.inventory.weapons.getAmmoTypeForWeapon(weaponItemName)
+            if ammoType and ammoType not in self.inventory.ammo.available:
+                self.inventory.ammo.addToAvailable(ammoType)
     
     def toggleAllWeapons(self):
         """ Adds/removes all weapons, and selects/deselects checkboxes accordingly.  """

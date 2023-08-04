@@ -127,6 +127,7 @@ class EquipmentItem(InventoryItem):
 class WeaponItem(InventoryItem):
     """ Represents armaments: fists, chainsaw, guns. """
     
+    ammoType: str = 'not specified'
     equipReserve: Optional[bool] = None
     
     def updateData(self):

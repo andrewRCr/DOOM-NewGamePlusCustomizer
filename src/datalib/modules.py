@@ -357,6 +357,19 @@ class Equipment(InventoryModule):
 class Weapons(InventoryModule):
     """ Represents a collection of possible/available WeaponItems. """
     
+    # TODO: figure out what '"summonweapon/base"' is and when/why it needs to be included; it's before the BFG is added in a full loadout decl
+    #summonWeapon = WeaponItem('summonWeapon', '"summonweapon/base"')
+    
+    def __post_init__(self) -> None:
+        """ Adds default starting armaments to available pool. """
+        self.available = [self.fists, self.pistol]
+        
+    def getAmmoTypeForWeapon(self, weaponName: str):
+        """ Helper function to idenfity a weapon's corresponding ammo by names. """
+        weapon = getattr(self, weaponName)
+        if isinstance(weapon, WeaponItem):
+            return weapon.ammoType     
+    
     # metadata
     moduleName: str = 'Weapons'
     elementType: object = WeaponItem
@@ -366,7 +379,8 @@ class Weapons(InventoryModule):
         path = '"weapon/zion/player/sp/fists"')
     chainsaw = WeaponItem(
         name = 'chainsaw', 
-        fName = 'Chainsaw', 
+        fName = 'Chainsaw',
+        ammoType = 'fuel', 
         path = '"weapon/zion/player/sp/chainsaw"',
         description= 'The Chainsaw is a specialized melee weapon.\n' 
         + 'Using the Chainsaw requires fuel - the bigger the demon, the more you need.\n' 
@@ -379,23 +393,28 @@ class Weapons(InventoryModule):
     combatShotgun = WeaponItem(
         name = 'combatShotgun', 
         fName = 'Combat Shotgun',
+        ammoType = 'shells',
         path = '"weapon/zion/player/sp/shotgun"')
     heavyAssaultRifle = WeaponItem(
         name = 'heavyAssaultRifle',
         fName = 'Heavy Assault Rifle',
+        ammoType = 'bullets',
         path = '"weapon/zion/player/sp/heavy_rifle_heavy_ar"', 
         equipReserve = True)
     plasmaRifle = WeaponItem(
         name = 'plasmaRifle', 
         fName = 'Plasma Rifle',
+        ammoType = 'cells',
         path = '"weapon/zion/player/sp/plasma_rifle"')
     rocketLauncher = WeaponItem(
         name = 'rocketLauncher',
         fName = 'Rocket Launcher',
+        ammoType = 'rockets',
         path = '"weapon/zion/player/sp/rocket_launcher"')
     superShotgun = WeaponItem(
         name = 'superShotgun',
         fName = 'Super Shotgun',
+        ammoType = 'shells',
         path = '"weapon/zion/player/sp/double_barrel"')
     gaussCannon = WeaponItem(
         name = 'gaussCannon', 
@@ -404,20 +423,15 @@ class Weapons(InventoryModule):
     chaingun = WeaponItem(
         name = 'chaingun', 
         fName = 'Chaingun',
+        ammoType = 'bullets',
         path = '"weapon/zion/player/sp/chaingun"')
     bfg9000 = WeaponItem(
         name = 'bfg9000', 
         fName = 'BFG-9000', 
+        ammoType = 'bfg',
         path = "weapon/zion/player/sp/bfg")
 
-    # TODO: figure out what '"summonweapon/base"' is and when/why it needs to be included; it's before the BFG is added in a full loadout decl
-    #summonWeapon = WeaponItem('summonWeapon', '"summonweapon/base"')
-    
-    def __post_init__(self) -> None:
-        """ Adds default starting armaments to available pool. """
-        self.available = [self.fists, self.pistol]
-    
-    
+
 @dataclass
 class WeaponMods(InventoryModule):
     """ Represents a collection of possible/available WeaponModPerks. """
