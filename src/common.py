@@ -54,8 +54,6 @@ tripleIndent = doubleIndent + indent
 quadIndent = tripleIndent + indent
 
 # static UI data
-
-
 ARGENT_DROPDOWN_DATA = {
     'healthCapacity': {'fName': 'Health:', 'Levels': {0: 'Default (100)', 1: 'Level 1 (125)', 2: 'Level 2 (150)', 3: 'Level 3 (175)', 4: 'Level 4 (200)'}, 'Dropdown': None},
     'armorCapacity': {'fName': 'Armor:', 'Levels': {0: 'Default (50)', 1: 'Level 1 (75)', 2: 'Level 2 (100)', 3: 'Level 3 (125)', 4: 'Level 4 (150)'}, 'Dropdown': None},

@@ -339,18 +339,22 @@ class Equipment(InventoryModule):
         name = 'decoyHologram',
         fName = 'Decoy Hologram',
         path ='"decoyhologram/equipment"',
-        description = '')
+        description = 'Functions by projecting an image into a cloud of ionized argon gas.\n' 
+        + 'The broad-spectrum image creates a convincing illusion which can distract enemies.')
     fragGrenade = EquipmentItem(
         name = 'fragGrenade',
         fName = 'Frag Grenade', 
         path = '"throwable/zion/player/sp/frag_grenade"', 
         equip = True,
-        description = '')
+        description = 'While a conventional grenade based on the M67 at the core, it has been \n' 
+        + 'enhanced by the UAC in several ways. Provides a five meter radius of lethal damage.')
     siphonGrenade = EquipmentItem(
         name = 'siphonGrenade', 
         fName = 'Siphon Grenade',
         path = '"throwable/zion/player/sp/siphon_grenade"',
-        description = '')
+        description = 'Functions on the basis of alternately charged Argent energy fields, creating a positive charge on the user\'s\n' 
+        + 'suit and exploding with a negatively charged field. The resulting differential creates an attractive Argent field\n' 
+        + 'that pulls plasma from any demons caught in the blast radius, feeding it back as energy which can heal.')
      
         
 @dataclass
@@ -389,47 +393,60 @@ class Weapons(InventoryModule):
         name = 'pistol',
         fName = 'Pistol', 
         path = '"weapon/zion/player/sp/pistol"', 
-        equip = True)
+        equip = True,
+        description = 'A small directed energy weapon based on plasma gel - called energy-matter-gel.\n' 
+        + 'Four megawatts of Argent energy are compressed into a kinetic slug.\n' 
+        + 'It has an unlimited ammunition supply thanks to a gravitational dynamo which is charged by the wielder\'s movements.')
     combatShotgun = WeaponItem(
         name = 'combatShotgun', 
         fName = 'Combat Shotgun',
         ammoType = 'shells',
-        path = '"weapon/zion/player/sp/shotgun"')
+        path = '"weapon/zion/player/sp/shotgun"',
+        description = 'A pump-action shotgun with a tight spread of buckshot.')
     heavyAssaultRifle = WeaponItem(
         name = 'heavyAssaultRifle',
         fName = 'Heavy Assault Rifle',
         ammoType = 'bullets',
         path = '"weapon/zion/player/sp/heavy_rifle_heavy_ar"', 
-        equipReserve = True)
+        equipReserve = True,
+        description = 'Features a dependable mechanical firing mechanism, high accuracy at long range, and an abundant supply of ammunition.')
     plasmaRifle = WeaponItem(
         name = 'plasmaRifle', 
         fName = 'Plasma Rifle',
         ammoType = 'cells',
-        path = '"weapon/zion/player/sp/plasma_rifle"')
+        path = '"weapon/zion/player/sp/plasma_rifle"',
+        description = 'A fully automatic rifle that fires pulses of super-heated plasma capable of dealing splash damage.')
     rocketLauncher = WeaponItem(
         name = 'rocketLauncher',
         fName = 'Rocket Launcher',
         ammoType = 'rockets',
-        path = '"weapon/zion/player/sp/rocket_launcher"')
+        path = '"weapon/zion/player/sp/rocket_launcher"',
+        description = 'Fires rockets that explode on impact, doing damage over a large area.')
     superShotgun = WeaponItem(
         name = 'superShotgun',
         fName = 'Super Shotgun',
         ammoType = 'shells',
-        path = '"weapon/zion/player/sp/double_barrel"')
+        path = '"weapon/zion/player/sp/double_barrel"',
+        description = 'A break-action double shotgun that fires a wide spread of buckshot.')
     gaussCannon = WeaponItem(
         name = 'gaussCannon', 
         fName = 'Gauss Cannon',
-        path = "weapon/zion/player/sp/gauss_rifle")
+        path = "weapon/zion/player/sp/gauss_rifle",
+        description = 'A devastatingly accurate long-range weapon with a noticeable kick that must be compensated by the operator.')
     chaingun = WeaponItem(
         name = 'chaingun', 
         fName = 'Chaingun',
         ammoType = 'bullets',
-        path = '"weapon/zion/player/sp/chaingun"')
+        path = '"weapon/zion/player/sp/chaingun"',
+        description = 'A large drum-fed rotary machine gun with a high rate of fire.')
     bfg9000 = WeaponItem(
         name = 'bfg9000', 
         fName = 'BFG-9000', 
         ammoType = 'bfg',
-        path = "weapon/zion/player/sp/bfg")
+        path = "weapon/zion/player/sp/bfg",
+        description = 'The BFG-9000 is a weapon with massive power - use it to devastate your enemies.\n'
+        + 'Most research regarding the BFG-9000 remains classified.\n' 
+        + 'The design was first [REDACTED] by [REDACTED] and [REDACTED].')
 
 
 @dataclass
@@ -541,7 +558,8 @@ class WeaponMods(InventoryModule):
         applicableMod = 'isBaseMod',
         applicableWeapon = 'combatShotgun',
         path = '"perk/zion/player/sp/weapons/shotgun/secondary_charge_burst"',
-        description = 'An Argent-charged compression reloader fires off a volley of three shells in a quick succession. The compression reloader component used to drive this fast firing is powered by Argent energy, and requires a cool down period after use.')
+        description = 'An Argent-charged compression reloader fires off a volley of three shells in a quick succession.\n'
+        + 'The compression reloader component used to drive this fast firing is powered by Argent energy, and requires a cool down period after use.')
     chargedBurst_speedyRecovery = WeaponModPerk(
         name = 'chargedBurst_speedyRecovery',
         fName = 'Speedy Recovery',
@@ -569,7 +587,8 @@ class WeaponMods(InventoryModule):
         applicableWeapon = 'combatShotgun',
         applicableMod = 'chargedBurst',
         path = '"perk/zion/player/sp/weapons/shotgun/secondary_charge_burst_mastery"',
-        description = 'Successfully hitting all three shots of a charged burst will increase the damage of the next one. The effect does not stack.')
+        description = 'Successfully hitting all three shots of a charged burst will increase the damage of the next one.\n' 
+        + 'The effect does not stack.')
     
     # combat shotgun: explosive shot + upgrades
     explosiveShot = WeaponModPerk(
@@ -578,7 +597,9 @@ class WeaponMods(InventoryModule):
         applicableMod = 'isBaseMod',
         applicableWeapon = 'combatShotgun',
         path = '"perk/zion/player/sp/weapons/shotgun/pop_rocket"',
-        description = 'An alternate ammunition for the combat shotgun based on octanitrocubane explosive and a glycerin fuse. Shot embedded in the explosive is dispersed upon impact, creating an effect similar to the frag grenade, damaging targets over a wide area. This extends the weapon\'s utility against multiple targets.')
+        description = 'An alternate ammunition for the combat shotgun based on octanitrocubane explosive and a glycerin fuse.\n' 
+        + 'Shot embedded in the explosive is dispersed upon impact, creating an effect similar to the frag grenade,\n' 
+        + 'damaging targets over a wide area. This extends the weapon\'s utility against multiple targets.')
     explosiveShot_speedyRecovery = WeaponModPerk(
         name = 'explosiveShot_speedyRecovery',
         fName = 'Speedy Recovery',
@@ -636,35 +657,36 @@ class WeaponMods(InventoryModule):
         applicableWeapon = 'heavyAssaultRifle',
         applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/heavy_rifle_heavy_ar/zoom"',
-        description = '')
+        description = 'The tactical scope is a telescopic sight allowing multiple levels of zoom with parallax compensation and gimbal-mounted\n'
+        + 'recoil stabilization. It has a part designation of UAC-TS3. It transforms the already highly accurate heavy assault rifle into a sniper rifle.')
     tacticalScope_uraniumCoating = WeaponModPerk(
         name = 'tacticalScope_uraniumCoating',
         fName = 'Uranium Coating',
         applicableWeapon = 'heavyAssaultRifle',
         applicableMod = 'tacticalScope',
         path = '"perk/zion/player/sp/weapons/heavy_rifle_heavy_ar/zoom_bullet_penetration"',
-        description = '')
+        description = 'Shots fired with the tactical scope\'s zoom feature will pierce enemies.')
     tacticalScope_skullCracker = WeaponModPerk(
         name = 'tacticalScope_skullCracker',
         fName = 'Skull Cracker',
         applicableWeapon = 'heavyAssaultRifle',
         applicableMod = 'tacticalScope',
         path = '"perk/zion/player/sp/weapons/heavy_rifle_heavy_ar/zoom_more_headshot_damage"',
-        description = '')
+        description = 'Headshots attained in scope mode do more damage.')
     tacticalScope_lightWeight = WeaponModPerk(
         name = 'tacticalScope_lightWeight',
         fName = 'Light Weight',
         applicableWeapon = 'heavyAssaultRifle',
         applicableMod = 'tacticalScope',
         path = '"perk/zion/player/sp/weapons/heavy_rifle_heavy_ar/zoom_no_movement_penalty"',
-        description = '')
+        description = 'Increased movement speed while using the scope.')
     tacticalScope_devastatorRounds_mastery = WeaponModPerk(
         name = 'tacticalScope_devastatorRounds_mastery',
         fName = 'MASTERY: Devastator Rounds',
         applicableWeapon = 'heavyAssaultRifle',
         applicableMod = 'tacticalScope',
         path = '"perk/zion/player/sp/weapons/heavy_rifle_heavy_ar/zoom_mastery"',
-        description = '')
+        description = 'Fires powerful experimental Devastator rounds while zoomed-in.')
     
     # heavy assault rifle: micro missiles + upgrades
     microMissiles = WeaponModPerk(
@@ -673,35 +695,37 @@ class WeaponMods(InventoryModule):
         applicableWeapon = 'heavyAssaultRifle',
         applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/heavy_rifle_heavy_ar/burst_detonate"',
-        description = '')
+        description = 'The micro missile mod provides a dramatic temporary power increase, allowing the firing of up to six \n' 
+        + 'explosive HMX missiles which detonate on impact. The pack of missiles attaches to the left side \n' 
+        + 'of the rifle, which has a port accepting the ammo pack.')
     microMissiles_ammoEfficient = WeaponModPerk(
         name = 'microMissiles_ammoEfficient',
         fName = 'Ammo Efficient',
         applicableWeapon = 'heavyAssaultRifle',
         applicableMod = 'microMissiles',
         path = '"perk/zion/player/sp/weapons/heavy_rifle_heavy_ar/burst_detonate_lower_ammo_cost"',
-        description = '')
+        description = 'Decreased ammo usage.')
     microMissiles_advancedLoader = WeaponModPerk(
         name = 'microMissiles_advancedLoader',
         fName = 'Advanced Loader',
         applicableWeapon = 'heavyAssaultRifle',
         applicableMod = 'microMissiles',
         path = '"perk/zion/player/sp/weapons/heavy_rifle_heavy_ar/burst_detonate_faster_recharge"',
-        description = '')
+        description = 'Improved reload time.')
     microMissiles_quickLauncher = WeaponModPerk(
         name = 'microMissiles_quickLauncher',
         fName = 'Quick Launcher',
         applicableWeapon = 'heavyAssaultRifle',
         applicableMod = 'microMissiles',
         path = '"perk/zion/player/sp/weapons/heavy_rifle_heavy_ar/burst_detonate_faster_charge_time"',
-        description = '')
+        description = 'The micro missile mod can be activated instantaneously.')
     microMissiles_bottomlessMissiles_mastery = WeaponModPerk(
         name = 'microMissiles_bottomlessMissiles_mastery',
         fName = 'MASTERY: Bottomless Missiles',
         applicableWeapon = 'heavyAssaultRifle',
         applicableMod = 'microMissiles',
         path = '"perk/zion/player/sp/weapons/heavy_rifle_heavy_ar/burst_detonate_mastery"',
-        description = '')
+        description = 'Missiles can be continuously fired without a reload.')
     
     # PLASMA RIFLE
     # plasma rifle: heat blast + upgrades
@@ -711,35 +735,38 @@ class WeaponMods(InventoryModule):
         applicableWeapon = 'plasmaRifle',
         applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/plasma_rifle/secondary_aoe"',
-        description = '')
+        description = 'An attachment for the muzzle of the plasma rifle, this unit collects heat into a copper crucible,\n' 
+        + 'and can release it via transfer to a diffusion chamber. The resulting wave can knock back targets\n' 
+        + 'and causes damage over a small range. Normal use of the weapon will recharge this module.\n' 
+        + 'The UAC recommends use of protective gear by the operator when using this device.')
     heatBlast_superHeatedRounds = WeaponModPerk(
         name = 'heatBlast_superHeatedRounds',
         fName = 'Super Heated Rounds',
         applicableWeapon = 'plasmaRifle',
         applicableMod = 'heatBlast',
         path = '"perk/zion/player/sp/weapons/plasma_rifle/secondary_aoe_faster_charge"',
-        description = '')
+        description = 'Shots build heat faster.')
     heatBlast_improvedVenting = WeaponModPerk(
         name = 'heatBlast_improvedVenting',
         fName = 'Improved Venting',
         applicableWeapon = 'plasmaRifle',
         applicableMod = 'heatBlast',
         path = '"perk/zion/player/sp/weapons/plasma_rifle/secondary_aoe_faster_recovery"',
-        description = '')
+        description = 'Decreases recovery time between heat blast shots.')
     heatBlast_expandedThreshold = WeaponModPerk(
         name = 'heatBlast_expandedThreshold',
         fName = 'Expanded Threshold',
         applicableWeapon = 'plasmaRifle',
         applicableMod = 'heatBlast',
         path = '"perk/zion/player/sp/weapons/plasma_rifle/secondary_aoe_more_damage"',
-        description = '')  
+        description = 'The heat meter maximum is increased, allowing a higher range of damage.')  
     heatBlast_heatedCore_mastery = WeaponModPerk(
         name = 'heatBlast_heatedCore_mastery',
         fName = 'MASTERY: Heated Core',
         applicableWeapon = 'plasmaRifle',
         applicableMod = 'heatBlast',
         path = '"perk/zion/player/sp/weapons/plasma_rifle/secondary_aoe_mastery"',
-        description = '')  
+        description = 'The heat meter is automatically charged over time, taking about 10 seconds to fully charge, and can even charge when in your inventory.')  
     
     # plasma rifle: stun bomb + upgrades
     stunBomb = WeaponModPerk(
@@ -748,35 +775,39 @@ class WeaponMods(InventoryModule):
         applicableWeapon = 'plasmaRifle',
         applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/plasma_rifle/secondary_stun"',
-        description = '')
+        description = 'A modification which combines multiple shots into a single larger projectile.\n' 
+        + 'It is said to generate Birkeland currents, a phenomenon associated with intense magnetic fields,\n' 
+        + 'via exceeding the "Franheiser limit," an apparently novel discovery in physics by the UAC.\n' 
+        + 'It stuns targets within the discharge radius for several seconds with its electromagnetic effects.\n' 
+        + 'It requires a cool-down period between firings.')
     stunBomb_quickRecharge = WeaponModPerk(
         name = 'stunBomb_quickRecharge',
         fName = 'Quick Recharge',
         applicableWeapon = 'plasmaRifle',
         applicableMod = 'stunBomb',
         path = '"perk/zion/player/sp/weapons/plasma_rifle/secondary_stun_faster_recharge"',
-        description = '')
+        description = 'Decreases cool-down time between stun bombs.')
     stunBomb_bigShock = WeaponModPerk(
         name = 'stunBomb_bigShock',
         fName = 'Big Shock',
         applicableWeapon = 'plasmaRifle',
         applicableMod = 'stunBomb',
         path = '"perk/zion/player/sp/weapons/plasma_rifle/secondary_stun_larger_radius"',
-        description = '')
+        description = 'Stun bombs have an increased area of effect.')
     stunBomb_largerStun = WeaponModPerk(
         name = 'stunBomb_largerStun',
         fName = 'Larger Stun',
         applicableWeapon = 'plasmaRifle',
         applicableMod = 'stunBomb',
         path = '"perk/zion/player/sp/weapons/plasma_rifle/secondary_stun_longer_stun"',
-        description = '')    
+        description = 'The stagger induced by a stun bomb detonation lasts longer.')    
     stunBomb_chainStun_mastery = WeaponModPerk(
         name = 'stunBomb_chainStun_mastery',
         fName = 'MASTERY: Chain Stun',
         applicableWeapon = 'plasmaRifle',
         applicableMod = 'stunBomb',
         path = '"perk/zion/player/sp/weapons/plasma_rifle/secondary_stun_mastery"',
-        description = '')   
+        description = 'Enemies killed while in the staggered state will explode with secondary stun bombs.')   
     
     # ROCKET LAUNCHER
     # rocket launcher: lock-on burst + upgrades
@@ -786,28 +817,33 @@ class WeaponMods(InventoryModule):
         applicableWeapon = 'rocketLauncher',
         applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/rocket_launcher/lock_on"',
-        description = '')
+        description = 'Though all UAC-produced rockets are fit with guidance capabilities, they are inactive by default\n' 
+        + 'as a controlling guidance system is also required. This modification adds an activator for that system,\n' 
+        + 'allowing the ordinary rockets to become self-guided homing missiles. This unit provides a lock-on laser\n' 
+        + 'for painting the desired target, and modifies the firing characteristics of the weapon such that three rockets\n' 
+        + 'will be launched in a quick series. The rockets will navigate to the desired target using built-in motors in their\n' 
+        + 'fin assemblies. Lock-on burst rockets do approximately one-third as much damage as a normal rocket.')
     lockOnBurst_quickLock = WeaponModPerk(
         name = 'lockOnBurst_quickLock',
         fName = 'Quick Lock',
         applicableWeapon = 'rocketLauncher',
         applicableMod = 'lockOnBurst',
         path = '"perk/zion/player/sp/weapons/rocket_launcher/lockon_decrease_lock_time"',
-        description = '')
+        description = 'The time taken to acquire a lock-on is reduced.')
     lockOnBurst_fasterRecovery= WeaponModPerk(
         name = 'lockOnBurst_fasterRecovery',
         fName = 'Faster Recovery',
         applicableWeapon = 'rocketLauncher',
         applicableMod = 'lockOnBurst',
         path = '"perk/zion/player/sp/weapons/rocket_launcher/lockon_faster_recovery"',
-        description = '')
+        description = 'Recovery time is reduced, allowing a new lock-on to be acquired faster.')
     lockOnBurst_multiTargeting_mastery = WeaponModPerk(
         name = 'lockOnBurst_multiTargeting_mastery',
         fName = 'MASTERY: Multi-Targeting',
         applicableWeapon = 'rocketLauncher',
         applicableMod = 'lockOnBurst',
         path = '"perk/zion/player/sp/weapons/rocket_launcher/lockon_mastery"',
-        description = '')    
+        description = 'Up to three targets can be locked onto simultaneously. Fired rockets will be split between the targets.')    
 
     # rocket launcher: remote detonation + upgrades
     remoteDetonation = WeaponModPerk(
@@ -816,28 +852,33 @@ class WeaponMods(InventoryModule):
         applicableWeapon = 'rocketLauncher',
         applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/rocket_launcher/detonate"',
-        description = '')
+        description = 'The remote detonator allows rockets to be exploded before impact during flight, in case the primary target\n' 
+        + 'has been missed or is not in a prime location to be otherwise struck by the projectile\'s blast. It functions by covering \n' 
+        + 'outgoing missiles\' fuses with a nano-fiber membrane containing a graphite weave combined with explosives.\n' 
+        + 'An attached wireless receiver then overrides the missile\'s impact fuse at the weapon wielder\'s command.\n' 
+        + 'Notably, there are no safety interlocks to prevent detonation at short range, so the operator must be cautious.')
     remoteDetonation_improvedWarhead = WeaponModPerk(
         name = 'remoteDetonation_improvedWarhead',
         fName = 'Improved Warhead',
         applicableWeapon = 'rocketLauncher',
         applicableMod = 'remoteDetonation',
         path = '"perk/zion/player/sp/weapons/rocket_launcher/detonate_larger_damage_radius"',
-        description = '')
+        description = 'The area-of-effect damage of remote detonated missiles is increased.')
     remoteDetonation_jaggedShrapnel = WeaponModPerk(
         name = 'remoteDetonation_jaggedShrapnel',
         fName = 'Jagged Shrapnel',
         applicableWeapon = 'rocketLauncher',
         applicableMod = 'remoteDetonation',
         path = '"perk/zion/player/sp/weapons/rocket_launcher/detonate_dot_undead"',
-        description = '')
+        description = 'Remote detonated missiles explode with shrapnel which causes bleed damage.')
     remoteDetonation_externalPayload_mastery = WeaponModPerk(
         name = 'remoteDetonation_externalPayload_mastery',
         fName = 'MASTERY: External Payload',
         applicableWeapon = 'rocketLauncher',
         applicableMod = 'remoteDetonation',
         path = '"perk/zion/player/sp/weapons/rocket_launcher/detonate_mastery"',
-        description = '')
+        description = 'Remote detonation of a missile will not cause the missile to be destroyed,\n' 
+        + 'effectively allowing it to hit a target twice.')
     
     # GAUSS CANNON
     # gauss cannon: precision bolt + upgrades
@@ -847,28 +888,30 @@ class WeaponMods(InventoryModule):
         applicableWeapon = 'gaussCannon',
         applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/gauss_cannon/charged_sniper"',
-        description = '')
+        description = 'The precision bolt modification adds a telescopic sight, increasing long-range accuracy.\n' 
+        + 'The modification also provides the ability to accumulate additional charge while using the scope,\n' 
+        + 'releasing the projectile at a higher velocity. A fully charged flechette can pierce multiple targets.')
     precisionBolt_energyEfficient = WeaponModPerk(
         name = 'precisionBolt_energyEfficient',
         fName = 'Energy Efficient',
         applicableWeapon = 'gaussCannon',
         applicableMod = 'precisionBolt',
         path = '"perk/zion/player/sp/weapons/gauss_cannon/charged_sniper_reduced_max_charge"',
-        description = '')
+        description = 'Decreases recharge time.')
     precisionBolt_lightWeight = WeaponModPerk(
         name = 'precisionBolt_lightWeight',
         fName = 'Light Weight',
         applicableWeapon = 'gaussCannon',
         applicableMod = 'precisionBolt',
         path = '"perk/zion/player/sp/weapons/gauss_cannon/charged_sniper_no_movement_penalty"',
-        description = '')
+        description = 'Increased movement speed while zoomed in.')
     precisionBolt_volatileDischarge_mastery = WeaponModPerk(
         name = 'precisionBolt_volatileDischarge_mastery',
         fName = 'MASTERY: Volatile Discharge',
         applicableWeapon = 'gaussCannon',
         applicableMod = 'precisionBolt',
         path = '"perk/zion/player/sp/weapons/gauss_cannon/charged_sniper_mastery"',
-        description = '')
+        description = 'Enemies killed with the precision bolt will explode.')
     
     # gauss cannon: siege mode + upgrades
     siegeMode = WeaponModPerk(
@@ -877,28 +920,31 @@ class WeaponMods(InventoryModule):
         applicableWeapon = 'gaussCannon',
         applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/gauss_cannon/siege_mode"',
-        description = '')
+        description = 'The siege mode modification consists of an argon gas ionizer and vacuum seal to the weapon\'s launch chamber.\n' 
+        + 'The ionized gas is released as plasma when the weapon is fired, adding a beam effect to the kinetic projectile.\n' 
+        + 'The user must stay stationary when charging this firing mode due to the volatile gas. Aside from piercing\n' 
+        + 'multiple targets, the beam will also create a blast effect upon impact.')
     siegeMode_outerBeam = WeaponModPerk(
         name = 'siegeMode_outerBeam',
         fName = 'Outer Beam',
         applicableWeapon = 'gaussCannon',
         applicableMod = 'siegeMode',
         path = '"perk/zion/player/sp/weapons/gauss_cannon/siege_mode_outer_beam"',
-        description = '')
+        description = 'Increases the area-of-effect damage for siege mode shots.')
     siegeMode_reducedCharge = WeaponModPerk(
         name = 'siegeMode_reducedCharge',
         fName = 'Reduced Charge',
         applicableWeapon = 'gaussCannon',
         applicableMod = 'siegeMode',
         path = '"perk/zion/player/sp/weapons/gauss_cannon/siege_mode_reduced_charge_time";',
-        description = '')
+        description = 'Decreases charging time.')
     siegeMode_mobileSiege_mastery = WeaponModPerk(
         name = 'siegeMode_mobileSiege_mastery',
         fName = 'MASTERY: Mobile Siege',
         applicableWeapon = 'gaussCannon',
         applicableMod = 'siegeMode',
         path = '"perk/zion/player/sp/weapons/gauss_cannon/siege_mode_mastery"',
-        description = '')
+        description = 'Enables movement while charging.')
     
     # CHAINGUN
     # chaingun: gatling rotator + upgrades
@@ -908,28 +954,29 @@ class WeaponMods(InventoryModule):
         applicableWeapon = 'chaingun',
         applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/chaingun/gatling"',
-        description = '')
+        description = 'This unapproved third-party modification to the chaingun overrides the release mechanism of the firing crucible,\n' 
+        + 'enabling the chaingun to spin up to maximum speed without previously firing for greater efficiency. ')
     gatlingRotator_improvedTorque = WeaponModPerk(
         name = 'gatlingRotator_improvedTorque',
         fName = 'Improved Torque',
         applicableWeapon = 'chaingun',
         applicableMod = 'gatlingRotator',
         path = '"perk/zion/player/sp/weapons/chaingun/gatling_faster_spinup"',
-        description = '')
+        description = 'Decreases spin-up time.')
     gatlingRotator_uraniumCoating = WeaponModPerk(
         name = 'gatlingRotator_uraniumCoating',
         fName = 'Uranium Coating',
         applicableWeapon = 'chaingun',
         applicableMod = 'gatlingRotator',
         path = '"perk/zion/player/sp/weapons/chaingun/gatling_penetration"',
-        description = '')   
+        description = 'Shots penetrate enemies.')   
     gatlingRotator_incendiaryRounds_mastery = WeaponModPerk(
         name = 'gatlingRotator_incendiaryRounds_mastery',
         fName = 'MASTERY: Incendiary Rounds',
         applicableWeapon = 'chaingun',
         applicableMod = 'gatlingRotator',
         path = '"perk/zion/player/sp/weapons/chaingun/gatling_mastery"',
-        description = '')   
+        description = 'Bullets will do more damage once maximum firing rate is reached.')   
     
     # chaingun: mobile turret + upgrades
     mobileTurret = WeaponModPerk(
@@ -938,28 +985,31 @@ class WeaponMods(InventoryModule):
         applicableWeapon = 'chaingun',
         applicableMod = 'isBaseMod',
         path = '"perk/zion/player/sp/weapons/chaingun/turret"',
-        description = '')
+        description = 'This modification adds another crucible and compression piston chamber, doubling the weapon\'s\n' 
+        + 'firing rate by using all three of the barrel clusters simultaneously. While more accurate and extremely \n' 
+        + 'powerful, it expends ammunition at an amazing rate, slows the user down significantly, and runs the risk\n' 
+        + 'of overheating the weapon if fired for too long, requiring a long cool-down period to be endured after its use.')
     mobileTurret_rapidDeployment = WeaponModPerk(
         name = 'mobileTurret_rapidDeployment',
         fName = 'Rapid Deployment',
         applicableWeapon = 'chaingun',
         applicableMod = 'mobileTurret',
         path = '"perk/zion/player/sp/weapons/chaingun/turret_faster_equip"',
-        description = '')
+        description = 'Decreases transformation time of turret.')
     mobileTurret_uraniumCoating = WeaponModPerk(
         name = 'mobileTurret_uraniumCoating',
         fName = 'Uranium Coating',
         applicableWeapon = 'chaingun',
         applicableMod = 'mobileTurret',
         path = '"perk/zion/player/sp/weapons/chaingun/turret_penetration"',
-        description = '')
+        description = 'Shots penetrate enemies.')
     mobileTurret_ultimateCooling_mastery = WeaponModPerk(
         name = 'mobileTurret_ultimateCooling_mastery',
         fName = 'MASTERY: Ultimate Cooling',
         applicableWeapon = 'chaingun',
         applicableMod = 'mobileTurret',
         path = '"perk/zion/player/sp/weapons/chaingun/turret_mastery"',
-        description = '')
+        description = 'The weapon can no longer overheat.')
 
 
 @dataclass
