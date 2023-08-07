@@ -1,8 +1,10 @@
-
 __pycache__/
-
+build/
+dist/
 generated/
+output/
 
 *.txt
 *.decl;devInvLoadout
 *.zip
+*.spec

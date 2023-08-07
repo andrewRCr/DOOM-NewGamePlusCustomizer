@@ -2,9 +2,8 @@
 app.py: 
 - general application logic / entry-point
 - creates instance of App, which:
---- initializes/manages a window + widgets
---- captures relevant keyboard events
---- creates instance of Inventory w/ defaults
+--- initializes/manages windows + widgets
+--- creates instance of Inventory w/ default modules
 --- runs main loop
 """
 
@@ -38,7 +37,7 @@ class App(ctk.CTk):
         
         # set app window title and icon
         self.title('DOOM (2016) NewGame+ Customizer')
-        self.iconbitmap('res/images/slayer_icon.ico')
+        self.iconbitmap(resource_path(r'images\slayer_icon.ico'))
 
         # set appearance
         ctk.set_appearance_mode('dark')
@@ -50,11 +49,11 @@ class App(ctk.CTk):
         # to hold path once determined
         self.doomInstallationPath = None
 
-        # create bottom frame: generate mod button
+        # create bottom frame: holds generate mod button
         self.bottomFrame = ctk.CTkFrame(self, fg_color = 'transparent')
         self.bottomFrame.pack(side = 'bottom', fill = 'x')
         
-        # create path status frame
+        # create path status frame, above bottom frame / below main content frame
         self.statusFrame = ctk.CTkFrame(self, fg_color = 'transparent')
         self.statusFrame.pack(side = 'bottom', fill = 'x')
 
@@ -94,7 +93,7 @@ class App(ctk.CTk):
         
         match type:
             case PopupType.PT_ERROR:
-                pygame.mixer.music.load('res/sounds/dsoof.wav')
+                pygame.mixer.music.load(resource_path(r'sounds/dsoof.wav'))
                 pygame.mixer.music.play(loops = 0)
                 newPopupMessage = errorPopupMsg(self, offsetX, offsetY, message)
                 
@@ -112,48 +111,43 @@ class App(ctk.CTk):
             self.popupMsgWindow.focus()
     
     def initFonts(self):
-        """ """
+        """ Loads .ttf files and creates CTKFonts for widget use. """
         
         # import fonts
-        ctk.FontManager.load_font('res/fonts/DooM.ttf')
-        ctk.FontManager.load_font('res/fonts/EternalUiRegular-1Gap2.ttf')
-        ctk.FontManager.load_font('res/fonts/EternalUiBold-jErYR.ttf')
-        ctk.FontManager.load_font('res/fonts/EternalLogo-51X9B.ttf')
-        
-        # create font objects
-        self.tabFont = ctk.CTkFont('Eternal UI Bold', 18)
-        self.headerMainFont = ctk.CTkFont('Eternal UI Bold', 22)
-        self.subheaderMainFont = ctk.CTkFont('Eternal UI Bold', 16)
-        self.textMainFont = ctk.CTkFont('Eternal UI Regular', 16)
+        ctk.FontManager.load_font(resource_path('fonts/DooM.ttf'))
+        ctk.FontManager.load_font(resource_path('fonts/EternalUiRegular-1Gap2.ttf'))
+        ctk.FontManager.load_font(resource_path('fonts/EternalUiBold-jErYR.ttf'))
+        ctk.FontManager.load_font(resource_path('fonts/EternalLogo-51X9B.ttf'))
         
         # setup widget fonts
-        self.buttonWidgetFont = ctk.CTkFont('Eternal UI Bold', 16)
-        self.textWidgetFont = ctk.CTkFont('Eternal UI Bold', 16)
-        self.headerWidgetFont = ctk.CTkFont(family = FONT, size = FONT_SIZES['Headers'])
+        self.tabFont = ctk.CTkFont('Eternal UI Bold', FONT_SIZES['CategoryTabs'])
+        self.headerFont = ctk.CTkFont('Eternal UI Bold', FONT_SIZES['Headers'])
+        self.subheaderFont = ctk.CTkFont('Eternal UI Bold', FONT_SIZES['Subheaders'])
+        self.pathFont = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['Subheaders'])
         self.checkboxFont = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['Checkboxes'])
-        self.switchFont = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['Checkboxes'])
-        self.runeDescriptionFont = ctk.CTkFont('Eternal UI Regular', 14)
-        self.runeSubOptionFont = ctk.CTkFont('Eternal UI Regular', 15)
+        self.switchFont = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['Switches'])
+        self.runeSubOptionFont = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['RuneSubOption'])
             
     def initWidgets(self):
         """ Creates top-level app widgets and calls widget init functions for each inventory module. """
 
         def playTabChangeSound():
             """ Loads + plays tab changing sound. """
-            tabChangeSound = pygame.mixer.Sound('res/sounds/sgreload.wav')
+            tabChangeSound = pygame.mixer.Sound(resource_path('sounds/sgreload.wav'))
             tabChangeSound.play()
             
-        # setup tabs for inventory module grouping
-        self.tabMenu = ctk.CTkTabview(master = self.mainContentFrame, 
-                                      width = WINDOW_SIZE[0] - 40, 
-                                      height = WINDOW_SIZE[1] - 20,
-                                      fg_color = DARKEST_GRAY,
-                                      segmented_button_fg_color= DARKEST_GRAY,
-                                      segmented_button_selected_color = RED,
-                                      segmented_button_selected_hover_color =  RED_HIGHLIGHT,
-                                      border_width = 2,
-                                      border_color = WHITE,
-                                      command = playTabChangeSound)
+        # setup category tabs for inventory module grouping
+        self.tabMenu = ctk.CTkTabview(
+            master = self.mainContentFrame, 
+            width = WINDOW_SIZE[0] - 40, 
+            height = WINDOW_SIZE[1] - 20,
+            fg_color = DARKEST_GRAY,
+            segmented_button_fg_color= DARKEST_GRAY,
+            segmented_button_selected_color = RED,
+            segmented_button_selected_hover_color =  RED_HIGHLIGHT,
+            border_width = 2,
+            border_color = WHITE,
+            command = playTabChangeSound)
         
         self.tabMenu._segmented_button.configure(font = self.tabFont, border_width = 1, bg_color = WHITE)
         self.tabMenu.pack_propagate(True)
@@ -166,17 +160,18 @@ class App(ctk.CTk):
         
         # path status info
         cDefaultPath = r'C:\Program Files (x86)\Steam\steamapps\common\DOOM'
-        # if os.path.exists(cDefaultPath):
-        #     self.doomInstallationPath = cDefaultPath
+        if os.path.exists(cDefaultPath):
+            self.doomInstallationPath = cDefaultPath
         
         outputPathStr = 'NOT FOUND'
         if self.doomInstallationPath:
             outputPathStr =  f'{self.doomInstallationPath}'+ r'/Mods'
             outputPathStr = outputPathStr.replace('\\', '/')
             
-        self.outputPathLabel = ctk.CTkLabel(self.statusFrame,
-                                            text = f'Install Path: {outputPathStr}',
-                                            font = self.textMainFont)
+        self.outputPathLabel = ctk.CTkLabel(
+            self.statusFrame,
+            text = f'Install Path: {outputPathStr}',
+            font = self.pathFont)
         self.outputPathLabel.pack()
         
         # input to modify output path
@@ -185,7 +180,7 @@ class App(ctk.CTk):
             height= 14,
             width = 60,
             text = 'modify path', 
-            font = self.textMainFont,
+            font = self.pathFont,
             fg_color= DARK_GRAY,
             hover_color = LIGHT_GRAY,
             border_spacing = 0,
@@ -193,13 +188,15 @@ class App(ctk.CTk):
         self.modifyPathButton.pack(pady = (0, 2), anchor = 'center')
         
         # input to generate final output file from current app selections
-        self.generateModButton = ctk.CTkButton(self.bottomFrame, font = self.buttonWidgetFont, 
-                                               fg_color = RED,
-                                               hover_color = RED_HIGHLIGHT,
-                                               text_color = WHITE,
-                                               text = 'Generate Mod', 
-                                               command = self.generateMod,
-                                               height= 32)
+        self.generateModButton = ctk.CTkButton(
+            self.bottomFrame, 
+            font = self.subheaderFont, 
+            fg_color = RED,
+            hover_color = RED_HIGHLIGHT,
+            text_color = WHITE,
+            text = 'Generate Mod', 
+            command = self.generateMod,
+            height= 32)
         self.generateModButton.pack(padx = 0, pady = 5, anchor = 'center')
 
         # inventory module widgets
@@ -215,7 +212,7 @@ class App(ctk.CTk):
         
         parent = self.tabMenu.tab('Praetor Suit')
         
-        self.argentCellHeaderLabel = ctk.CTkLabel(parent, font = self.headerMainFont, text = 'Argent Cell Routing')
+        self.argentCellHeaderLabel = ctk.CTkLabel(parent, font = self.headerFont, text = 'Argent Cell Routing')
         self.argentCellHeaderLabel.grid(column = 0, row = 0, padx = 20, pady = (35, 15), columnspan = 2, sticky = 'w')
         
         self.toggleAllArgentSwitch = ctk.CTkSwitch(
@@ -233,7 +230,7 @@ class App(ctk.CTk):
         
         columnIndex, rowIndex = 0, 1
         for category in list(ARGENT_DROPDOWN_DATA.keys()):
-            categoryLabel = ctk.CTkLabel(self.argentDropdownsFrame, font = self.textWidgetFont, text = ARGENT_DROPDOWN_DATA[category]['fName'])
+            categoryLabel = ctk.CTkLabel(self.argentDropdownsFrame, font = self.subheaderFont, text = ARGENT_DROPDOWN_DATA[category]['fName'])
             categoryLabel.grid(column = columnIndex, row = rowIndex, padx = 0, sticky = 'e')
             columnIndex += 1
             
@@ -249,12 +246,13 @@ class App(ctk.CTk):
         def showUpgradeLimitPopupMsg():
             """ Helper function; creates warning popup message. """
             
-            self.createPopupMessage(PopupType.PT_ERROR, -60, -200, 'At least one category (health, armor, ammo) of Argent Cell upgrades' \
+            self.createPopupMessage(
+                PopupType.PT_ERROR, -60, -200, 'At least one category (health, armor, ammo) of Argent Cell upgrades' \
                 + ' must not be fully maxed so that you can still pick up the mandatory' \
                 + ' first upgrade given at the end of Resource Ops.')
             
         def checkIfMaxed():
-            """ """
+            """ Returns a bool indicating whether 2/3 categories are at 4/4 capacity, with the remaining category at 3/4 capacity. """
             
             allDropdowns = [ARGENT_DROPDOWN_DATA[category]['Dropdown'] for category in list(ARGENT_DROPDOWN_DATA.keys())]
             maxedCategoryTally, almostMaxedCategoryTally = 0, 0
@@ -312,7 +310,7 @@ class App(ctk.CTk):
         
         self.praetorCheckboxWidgets = []
         
-        self.praetorSuitHeaderLabel = ctk.CTkLabel(parent, font = self.headerMainFont, text = 'Suit Upgrades')
+        self.praetorSuitHeaderLabel = ctk.CTkLabel(parent, font = self.headerFont, text = 'Suit Upgrades')
         self.praetorSuitHeaderLabel.grid(column = 0, row = 2, padx = 20, pady = (90, 10), columnspan = 2, sticky = 'w')
         
         self.toggleAllPraetorSwitch = ctk.CTkSwitch(
@@ -340,7 +338,7 @@ class App(ctk.CTk):
         
         for category in allSuitUpgradeCategories:
             headersPad_x = SUIT_PANEL_DATA[category]
-            categoryLabel = ctk.CTkLabel(parentFrame, font = self.subheaderMainFont, text = category)
+            categoryLabel = ctk.CTkLabel(parentFrame, font = self.subheaderFont, text = category)
             categoryLabel.grid(column = categoryColumnIndex, row = categoryRowIndex, padx = headersPad_x, pady = (0, 10), sticky = 'w')
             categoryFrame = ctk.CTkFrame(parentFrame, fg_color = DARKEST_GRAY)
             categoryFrame.grid(column = categoryColumnIndex, row = categoryRowIndex + 1, padx = headersPad_x, columnspan = 3, sticky = 'w')
@@ -408,12 +406,11 @@ class App(ctk.CTk):
         """ Creates widgets for the Equipment inventory module. """
         
         parentTab = self.tabMenu.tab('Equipment & Weapons')
-        
         parentTab.columnconfigure(0, weight = 1)
         
         self.equipmentCheckboxWidgets = []
         
-        self.equipmentHeaderLabel = ctk.CTkLabel(parentTab, font = self.headerMainFont, text = 'Equipment')
+        self.equipmentHeaderLabel = ctk.CTkLabel(parentTab, font = self.headerFont, text = 'Equipment')
         self.equipmentHeaderLabel.grid(column = 0, row = 0, padx = 20, pady = (35, 10), columnspan = 2, sticky = 'nw')
         
         self.toggleAllEquipmentSwitch = ctk.CTkSwitch(
@@ -495,7 +492,7 @@ class App(ctk.CTk):
         
         self.weaponsCheckboxWidgets = []
         
-        self.weaponsHeaderLabel = ctk.CTkLabel(parentTab, font = self.headerMainFont, text = 'Weapons')
+        self.weaponsHeaderLabel = ctk.CTkLabel(parentTab, font = self.headerFont, text = 'Weapons')
         self.weaponsHeaderLabel.grid(column = 0, row = 3, padx = 20, pady = (20, 10), columnspan = 2, sticky = 'nw')
         
         self.toggleAllWeaponsSwitch = ctk.CTkSwitch(
@@ -541,9 +538,9 @@ class App(ctk.CTk):
         
         chainsawSize_x = 800
         chainsawSize_y = 255 
-        self.chainsawImage = ctk.CTkImage(light_image = Image.open('res/images/chainsaw.png'), 
-                                    dark_image = Image.open('res/images/chainsaw.png'),
-                                    size = (int(chainsawSize_x * .75), int(chainsawSize_y * .75)))
+        self.chainsawImage = ctk.CTkImage(light_image = Image.open(resource_path(r'images\chainsaw.png')), 
+                            dark_image = Image.open(resource_path(r'images\chainsaw.png')),
+                            size = (int(chainsawSize_x * .75), int(chainsawSize_y * .75)))
         
         self.chainsawImageLabel = ctk.CTkLabel(parentTab, image = self.chainsawImage, text = '')
         self.chainsawImageLabel.grid(column = 0, row = 6, padx = (30, 0), pady = (30, 0))
@@ -561,8 +558,9 @@ class App(ctk.CTk):
                 if self.toggleAllWeaponsSwitch.get():
                     self.toggleAllWeaponsSwitch.deselect()
                 break
+            
         if not found:
-            self.inventory.weapons.addToAvailable(weaponItemName)
+            self.inventory.weapons.addToAvailable(weaponItemName) # add it
             # if all are available, update UI toggle all switch to reflect that
             if len(self.inventory.weapons.available) == 11:
                 self.toggleAllWeaponsSwitch.select()  
@@ -595,12 +593,13 @@ class App(ctk.CTk):
         self.weaponModsAvailableCheckboxWidgets = []
         self.weaponModUpgradesAvailableCheckboxWidgets = []
         
-        self.weaponModsHeaderLabel = ctk.CTkLabel(parentTab, font = self.headerMainFont, text = 'Weapon Mods')
+        self.weaponModsHeaderLabel = ctk.CTkLabel(parentTab, font = self.headerFont, text = 'Weapon Mods')
         self.weaponModsHeaderLabel.grid(column = 0, row = 3, padx = 20, pady = (35, 10), columnspan = 2, sticky = 'nw')
         
         self.weaponModsSwitchFrame = ctk.CTkFrame(parentTab, fg_color = 'transparent')
         self.weaponModsSwitchFrame.grid(column = 0, row =  4, pady = (0, 20))
         
+        # setup toggle all switches
         self.toggleAllWeaponModsAvailableSwitch = ctk.CTkSwitch(
             master = self.weaponModsSwitchFrame, 
             text = 'All Weapon Mods Unlocked', 
@@ -722,12 +721,13 @@ class App(ctk.CTk):
         self.runesUpgradedCheckboxWidgets = []
         self.runesPermEquipCheckboxWidgets = []
         
-        self.runesHeaderLabel = ctk.CTkLabel(parentTab, font = self.headerMainFont, text = 'Runes')
+        self.runesHeaderLabel = ctk.CTkLabel(parentTab, font = self.headerFont, text = 'Runes')
         self.runesHeaderLabel.grid(column = 0, row = 3, padx = 20, pady = (35, 10), columnspan = 2, sticky = 'nw')
         
         self.runesSwitchFrame = ctk.CTkFrame(parentTab, fg_color = 'transparent')
         self.runesSwitchFrame.grid(column = 0, row =  4, pady = (0, 20))
         
+        # setup toggle all switches
         self.toggleAllRunesAvailableSwitch = ctk.CTkSwitch(
             master = self.runesSwitchFrame, 
             text = 'All Runes Unlocked', 
@@ -760,7 +760,7 @@ class App(ctk.CTk):
             state = 'disabled')
         self.toggleAllRunesPermEquipSwitch.grid(column = 2, row = 0, sticky = 'w', padx = (20, 0), pady = (0, 0))
         
-        # 4 frames, 1 per row
+        # setup rune checkbox display: 4 frames, 1 per row
         allRuneFrames = []
         rowIndex = 5
         for i in range(4):
@@ -810,6 +810,7 @@ class App(ctk.CTk):
                     runePanel.runeUpgradedCheckbox.configure(state = 'disabled')
                     runePanel.runePermEquipCheckbox.configure(state = 'disabled')
                     break
+                
             if not found:
                 self.inventory.runes.addToAvailable(runePerkName)
                 runePanel.runeUpgradedCheckbox.configure(state = 'normal')
@@ -953,11 +954,13 @@ class App(ctk.CTk):
             self.popupMsgWindow.destroy()
        
     def generateMod(self):
-        """ Top-level function for generating final, usable mod output file from current app values. """
+        """ Top-level function for generating final, usable mod output file from current app data values. """
         
+        # check for valid path; prompt user if needed
         if self.doomInstallationPath is None:
             # c:\ DOOM installation wasn't found during app init; need path
-            pygame.mixer.music.load('res/sounds/dsoof.wav')
+            #pygame.mixer.music.load('res/sounds/dsoof.wav')
+            pygame.mixer.music.load(resource_path(r'sounds/dsoof.wav'))
             pygame.mixer.music.play(loops = 0)
             message = 'Local C:/ installation of DOOM not found. Browse for /DOOM install directory?'
             self.createPopupMessage(PopupType.PT_PATH, -60, -100, message)
@@ -991,8 +994,9 @@ class App(ctk.CTk):
         shutil.rmtree('generated')
         os.remove(outputFileSource)
         
-        # play confirmation sound
-        confirmationSound = pygame.mixer.Sound('res/sounds/dsgetpow.wav')
+        # play confirmation sound + show message
+        #confirmationSound = pygame.mixer.Sound('res/sounds/dsgetpow.wav')
+        confirmationSound = pygame.mixer.Sound(resource_path('sounds/dsgetpow.wav'))
         confirmationSound.play()
         
         outputPathStr = topLevelPath.replace('\\', '/')
@@ -1025,19 +1029,20 @@ class popupMessage(ctk.CTkToplevel):
         self.overrideredirect(True)
 
         # setting up frame for widgets
-        self.popupFrame = ctk.CTkFrame(self, 
-                                       corner_radius = self.cornerRadius, 
-                                       width=self.width, 
-                                       height = self.height,
-                                       fg_color = DARK_GRAY, 
-                                       bg_color= self.transparentColor,
-                                       border_width = 2,
-                                       border_color = WHITE)
+        self.popupFrame = ctk.CTkFrame(
+            self, 
+            corner_radius = self.cornerRadius, 
+            width=self.width, 
+            height = self.height,
+            fg_color = DARK_GRAY, 
+            bg_color= self.transparentColor,
+            border_width = 2,
+            border_color = WHITE)
         self.popupFrame.pack(fill = 'both', expand = True)
 
 
 class errorPopupMsg(popupMessage):
-    """ """
+    """ 'Error' pop-up type specific class. """
     
     def __init__(self, parent, xOffset: int, yOffset: int, message: str):
         
@@ -1049,8 +1054,9 @@ class errorPopupMsg(popupMessage):
             yOffset = yOffset,
             message = message)
         
-        messageImage = ctk.CTkImage(light_image = Image.open('res/images/info.png'), 
-                                    dark_image = Image.open('res/images/info.png'))
+        messageImage = ctk.CTkImage(
+            light_image = Image.open(resource_path('images/info.png')), 
+            dark_image = Image.open(resource_path('images/info.png')))
       
         self.imageLabel = ctk.CTkLabel(self.popupFrame, image = messageImage, text = '', anchor = 'w')
         self.imageLabel.grid(column = 0, row = 0, padx = 20, pady = 20)
@@ -1063,7 +1069,7 @@ class errorPopupMsg(popupMessage):
         
         
 class infoPopupMsg(popupMessage):
-    """ """
+    """ 'Info' pop-up type specific class. """
     
     def __init__(self, parent, xOffset: int, yOffset: int, message: str):
         
@@ -1075,9 +1081,10 @@ class infoPopupMsg(popupMessage):
             yOffset = yOffset,
             message = message)
         
-        messageImage = ctk.CTkImage(light_image = Image.open('res/images/slayer_icon.png'), 
-                                    dark_image = Image.open('res/images/slayer_icon.png'), 
-                                    size = (60, 60))
+        messageImage = ctk.CTkImage(
+            light_image = Image.open(resource_path('images/slayer_icon.png')), 
+            dark_image = Image.open(resource_path('images/slayer_icon.png')), 
+            size = (60, 60))
       
         self.imageLabel = ctk.CTkLabel(self.popupFrame, image = messageImage, text = '')
         self.imageLabel.grid(column = 0, row = 0, padx = (10, 0), pady = (20, 0))
@@ -1090,7 +1097,7 @@ class infoPopupMsg(popupMessage):
         
         
 class promptPopupMsg(popupMessage):
-    """ """
+    """ Prompt pop-up type specific class. """
     
     def __init__(self, parent, xOffset: int, yOffset: int, message: str):
         
@@ -1125,20 +1132,35 @@ class DropdownMenu(ctk.CTkOptionMenu):
 
         self.dropdownWidgetFont = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['Dropdowns'])
 
-        super().__init__(master = parent, 
-                         fg_color = DARK_GRAY, 
-                         button_color = RED, 
-                         button_hover_color = RED_HIGHLIGHT,
-                         font = self.dropdownWidgetFont,
-                         values = values,
-                         command = command,
-                         dropdown_font = self.dropdownWidgetFont)
+        super().__init__(
+            master = parent, 
+            fg_color = DARK_GRAY, 
+            button_color = RED, 
+            button_hover_color = RED_HIGHLIGHT,
+            font = self.dropdownWidgetFont,
+            values = values,
+            command = command,
+            dropdown_font = self.dropdownWidgetFont)
 
 
 class Checkbox(ctk.CTkCheckBox):
     """ App checkbox widget base class. """
 
-    def __init__(self, parent, text, column, row, command, tooltipMsg, padx: tuple = (20, 0), pady: tuple = (0, 0), sticky = None, state = 'normal', font = None, checkboxHeight = 24, checkboxWidth = 24):
+    def __init__(
+        self, 
+        parent, 
+        text, 
+        column, 
+        row, 
+        command, 
+        tooltipMsg, 
+        padx: tuple = (20, 0), 
+        pady: tuple = (0, 0), 
+        sticky = None, 
+        state = 'normal', 
+        font = None, 
+        checkboxHeight = 24, 
+        checkboxWidth = 24):
         
         if font is None:
             font = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['Checkboxes'])
@@ -1160,7 +1182,7 @@ class Checkbox(ctk.CTkCheckBox):
 
 
 class WeaponTab():
-    """ """
+    """ Category tab panel contents for each Weapon that has mods to display/edit. """
 
     def __init__(self, parentApp, weaponName: str):
         
@@ -1189,16 +1211,20 @@ class WeaponTab():
             imageSize_x = WEAPON_MOD_PANEL_DATA[weaponName]['imageSize'][0]
             imageSize_y = WEAPON_MOD_PANEL_DATA[weaponName]['imageSize'][1]
             
-            self.weaponImage = ctk.CTkImage(light_image = Image.open(WEAPON_MOD_PANEL_DATA[weaponName]['imagePath']), 
-                                        dark_image = Image.open(WEAPON_MOD_PANEL_DATA[weaponName]['imagePath']),
-                                        size = (int(imageSize_x * .75), int(imageSize_y * .75)))
+            # self.weaponImage = ctk.CTkImage(light_image = Image.open(WEAPON_MOD_PANEL_DATA[weaponName]['imagePath']), 
+            #                             dark_image = Image.open(WEAPON_MOD_PANEL_DATA[weaponName]['imagePath']),
+            #                             size = (int(imageSize_x * .75), int(imageSize_y * .75)))
+            
+            self.weaponImage = ctk.CTkImage(light_image = Image.open(resource_path(WEAPON_MOD_PANEL_DATA[weaponName]['imagePath'])), 
+                            dark_image = Image.open(resource_path(WEAPON_MOD_PANEL_DATA[weaponName]['imagePath'])),
+                            size = (int(imageSize_x * .75), int(imageSize_y * .75)))
             
             self.weaponImageLabel = ctk.CTkLabel(parentWeaponTab, image = self.weaponImage, text = '')
             self.weaponImageLabel.grid(column = 0, row = 1, pady = (30, 0))
 
 
 class WeaponTabNoMods():
-    """ """
+    """ Category tab panel contents for each Weapon that has only non-mod upgrades to display/edit."""
     
     def __init__(self, parentApp, weaponName: str):
     
@@ -1210,7 +1236,7 @@ class WeaponTabNoMods():
         self.weaponPanelFrame = ctk.CTkFrame(parentWeaponTab, fg_color = 'transparent', border_color = WHITE, border_width = 0)
         self.weaponPanelFrame.grid(column = 0, row = 0, pady = (60, 0))
         
-        self.upgradesHeaderLabel = ctk.CTkLabel(self.weaponPanelFrame, text = 'Upgrades', font = parentApp.headerMainFont)
+        self.upgradesHeaderLabel = ctk.CTkLabel(self.weaponPanelFrame, text = 'Upgrades', font = parentApp.headerFont)
         self.upgradesHeaderLabel.grid(column = 0, row = 0, padx = (0, 0), pady = (0, 10), sticky = 'w')
         
         self.weaponUpgradesFrame = ctk.CTkFrame(self.weaponPanelFrame, fg_color = 'transparent', border_color= WHITE, border_width=0)
@@ -1241,9 +1267,10 @@ class WeaponTabNoMods():
         imageSize_x = WEAPON_MOD_PANEL_DATA[weaponName]['imageSize'][0]
         imageSize_y = WEAPON_MOD_PANEL_DATA[weaponName]['imageSize'][1]
         
-        self.weaponImage = ctk.CTkImage(light_image = Image.open(WEAPON_MOD_PANEL_DATA[weaponName]['imagePath']), 
-                                    dark_image = Image.open(WEAPON_MOD_PANEL_DATA[weaponName]['imagePath']),
-                                    size = (int(imageSize_x * .75), int(imageSize_y * .75)))
+        self.weaponImage = ctk.CTkImage(
+            light_image = Image.open(resource_path(WEAPON_MOD_PANEL_DATA[weaponName]['imagePath'])), 
+            dark_image = Image.open(resource_path(WEAPON_MOD_PANEL_DATA[weaponName]['imagePath'])),
+            size = (int(imageSize_x * .75), int(imageSize_y * .75)))
         
         self.weaponImageLabel = ctk.CTkLabel(parentWeaponTab, image = self.weaponImage, text = '')
         pady = (30, 0) if weaponName != 'superShotgun' else (60, 0)
@@ -1251,7 +1278,7 @@ class WeaponTabNoMods():
 
 
 class WeaponModPanel():
-    """ """
+    """ Panel for individual weapon mods and their upgrades, containing checkboxes for each. """
     
     def __init__(self, parentApp, parentFrame, parentFrameColumn, parentFrameRow, weaponModName: str, panelPadX: tuple = (0, 0), panelPadY: tuple = (0, 0)):
         
@@ -1262,7 +1289,7 @@ class WeaponModPanel():
         callbackFunc = partial(parentApp.weaponModCallback, weaponModName)
         self.weaponModHeaderCheckbox = ctk.CTkCheckBox(
             master = parentFrame, 
-            font = parentApp.headerMainFont, 
+            font = parentApp.headerFont, 
             text = self.weaponModPerk.fName,
             command = callbackFunc,
             fg_color = RED,
@@ -1297,7 +1324,7 @@ class WeaponModPanel():
      
 
 class RunePanel():
-    """ """
+    """ Panel for each rune display, containing checkboxes for unlocking, upgrading, and permanently equipping. """
     
     def __init__(self, parentApp, parentFrame, parentFrameColumn, parentFrameRow, runePerkName: str, panelPadX: tuple = (0, 0), panelPadY: tuple = (0, 0)):
         
@@ -1312,7 +1339,7 @@ class RunePanel():
         runeAvailableCallback = partial(parentApp.runeAvailableCallback, runePerkName)
         self.runeHeaderCheckbox = ctk.CTkCheckBox(
             master = parentFrame, 
-            font = parentApp.subheaderMainFont, 
+            font = parentApp.subheaderFont, 
             text = RUNE_PANEL_DATA[self.runePerk.name]['fName'],
             command = runeAvailableCallback,
             fg_color = RED,
@@ -1324,7 +1351,10 @@ class RunePanel():
         self.runeSubOptionFrame = ctk.CTkFrame(parentFrame, fg_color = 'transparent', border_color= WHITE, border_width=0)
         self.runeSubOptionFrame.grid(column = parentFrameColumn, row = parentFrameRow + 1, padx = panelPadX, sticky = 'w')
         
-        runeImage = ctk.CTkImage(light_image = Image.open(RUNE_PANEL_DATA[runePerkName]['imagePath']), dark_image = Image.open(RUNE_PANEL_DATA[runePerkName]['imagePath']), size = (70, 70))
+        runeImage = ctk.CTkImage(
+            light_image = Image.open(resource_path(RUNE_PANEL_DATA[runePerkName]['imagePath'])), 
+            dark_image = Image.open(resource_path(RUNE_PANEL_DATA[runePerkName]['imagePath'])), 
+            size = (70, 70))
         runeImageLabel = ctk.CTkLabel(self.runeSubOptionFrame, image = runeImage, text = '')
         runeImageLabel.grid(column = 0, row = 0, padx = (0, 0), pady = (0, 0), rowspan = 2, sticky = 'nsew')
         

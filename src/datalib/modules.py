@@ -457,9 +457,6 @@ class WeaponMods(InventoryModule):
     moduleName: str = 'WeaponMods'
     elementType: object = WeaponModPerk
     
-    # TODO: enforce weapon mods not being added by the user unless the weapon itself is as well (?)
-    # TODO: enforce masteries not being added by the user unless all preceding upgrades are as well (?)
-    
     def addToAvailable(self, applicableWeapon: str, modName: str):
         """ Adds an weapon mod to module's available pool, if validated."""
         if hasattr(self, modName):
@@ -468,7 +465,7 @@ class WeaponMods(InventoryModule):
                 self.available.append(mod)
     
     def toggleAllBaseModsAvailable(self, areAvailable: bool):
-        """ """
+        """ Toggles availability for all base mods. """
         
         allMembers = self.all()
         for each in allMembers:
@@ -481,7 +478,7 @@ class WeaponMods(InventoryModule):
                         self.available.remove(each)
                 
     def toggleAllModUpgradesAvailable(self, areAvailable: bool):
-        """ """
+        """ Toggles availability for all non-base mods (i.e., upgrades for base mods). """
         
         allMembers = self.all()
         for each in allMembers:
@@ -501,7 +498,7 @@ class WeaponMods(InventoryModule):
             return weaponModPerk
         
     def getAllModsForWeapon(self, weaponName: str):
-        """ """
+        """ Returns all mods applicable to the passed weapon. """
         
         allModsForWeapon = []
         
@@ -513,7 +510,7 @@ class WeaponMods(InventoryModule):
         return allModsForWeapon
         
     def getAllUpgradesForMod(self, modName: str):
-        """ """
+        """ Returns all upgrades applicable to the passed mod. """
         
         allUpgradesForMod = []
         

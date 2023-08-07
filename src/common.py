@@ -1,28 +1,30 @@
 """
 common.py: 
-- formatting + common static data definitions
+- formatting data
+- common static data definitions
 - utility functions
 """
 
 from enum import Enum
+import os
+import sys
 
 # basic layout sizing
 WINDOW_SIZE = (1000, 800)
 
-# WindowsOS styles required for task bar integration
-GWL_EXSTYLE = -20
-WS_EX_APPWINDOW = 0x00040000
-WS_EX_TOOLWINDOW = 0x00000080
-
 # text attributes
 FONT = 'Helvetica'
 FONT_SIZES = {
+    'Headers': 22,
+    'CategoryTabs': 18,
     'Dropdowns' : 16,
+    'Subheaders': 16,
+    'Checkboxes': 16,
+    'Switches' : 16,
+    'RuneSubOption': 15,
+    'Popups': 15,
     'Buttons': 14,
     'Text': 14,
-    'Headers': 16,
-    'Checkboxes': 16,
-    'Popups': 15
 }
 
 # color definitions
@@ -41,7 +43,7 @@ TITLE_BAR_HEX_COLORS = {
 }
 
 class PopupType(Enum):
-    """ """
+    """ Categories of possible pop-up window objects. """
     
     PT_ERROR = 0,
     PT_INFO = 1,
@@ -61,18 +63,18 @@ ARGENT_DROPDOWN_DATA = {
 }
 
 RUNE_PANEL_DATA = {
-    'vacuum': {'fName': 'Vacuum', 'imagePath' : 'res/images/rune_vacuum.png', 'panel': None}, 
-    'dazedAndConfused': {'fName': 'Dazed and Confused', 'imagePath' : 'res/images/rune_dazedAndConfused.png', 'panel': None},
-    'ammoBoost': {'fName': 'Ammo Boost', 'imagePath' : 'res/images/rune_ammoBoost.png', 'panel': None},
-    'equipmentPower': {'fName': 'Equipment Power', 'imagePath' : 'res/images/rune_equipmentPower.png', 'panel': None},
-    'seekAndDestroy': {'fName': 'Seek and Destroy', 'imagePath' : 'res/images/rune_seekAndDestroy.png', 'panel': None},
-    'savagery': {'fName': 'Savagery', 'imagePath' : 'res/images/rune_savagery.png', 'panel': None},
-    'inFlightMobility': {'fName': 'In-Flight Mobility', 'imagePath' : 'res/images/rune_inFlightMobility.png', 'panel': None},
-    'armoredOffensive': {'fName': 'Armored Offensive', 'imagePath' : 'res/images/rune_armoredOffensive.png', 'panel': None},
-    'bloodFueled': {'fName': 'Blood Fueled', 'imagePath' : 'res/images/rune_bloodFueled.png', 'panel': None},
-    'intimacyIsBest': {'fName': 'Intimacy is Best', 'imagePath' : 'res/images/rune_intimacyIsBest.png', 'panel': None},
-    'richGetRicher': {'fName': 'Rich Get Richer', 'imagePath' : 'res/images/rune_richGetRicher.png', 'panel': None},
-    'savingThrow': {'fName': 'Saving Throw', 'imagePath' : 'res/images/rune_savingThrow.png', 'panel': None},
+    'vacuum': {'fName': 'Vacuum', 'imagePath' : 'images/rune_vacuum.png', 'panel': None}, 
+    'dazedAndConfused': {'fName': 'Dazed and Confused', 'imagePath' : 'images/rune_dazedAndConfused.png', 'panel': None},
+    'ammoBoost': {'fName': 'Ammo Boost', 'imagePath' : 'images/rune_ammoBoost.png', 'panel': None},
+    'equipmentPower': {'fName': 'Equipment Power', 'imagePath' : 'images/rune_equipmentPower.png', 'panel': None},
+    'seekAndDestroy': {'fName': 'Seek and Destroy', 'imagePath' : 'images/rune_seekAndDestroy.png', 'panel': None},
+    'savagery': {'fName': 'Savagery', 'imagePath' : 'images/rune_savagery.png', 'panel': None},
+    'inFlightMobility': {'fName': 'In-Flight Mobility', 'imagePath' : 'images/rune_inFlightMobility.png', 'panel': None},
+    'armoredOffensive': {'fName': 'Armored Offensive', 'imagePath' : 'images/rune_armoredOffensive.png', 'panel': None},
+    'bloodFueled': {'fName': 'Blood Fueled', 'imagePath' : 'images/rune_bloodFueled.png', 'panel': None},
+    'intimacyIsBest': {'fName': 'Intimacy is Best', 'imagePath' : 'images/rune_intimacyIsBest.png', 'panel': None},
+    'richGetRicher': {'fName': 'Rich Get Richer', 'imagePath' : 'images/rune_richGetRicher.png', 'panel': None},
+    'savingThrow': {'fName': 'Saving Throw', 'imagePath' : 'images/rune_savingThrow.png', 'panel': None},
     }
 
 IMAGE_SCALE = .85
@@ -81,42 +83,42 @@ WEAPON_MOD_PANEL_DATA = {
         'pistol': {
         'fName': 'Pistol',
         'hasMods': False,
-        'imagePath': 'res/images/pistol.png',
+        'imagePath': 'images/pistol.png',
         'imageSize': (534, 284)},
     'combatShotgun': {
         'fName': 'Combat Shotgun',
         'hasMods': True,
-        'imagePath': 'res/images/combatShotgun.png',
+        'imagePath': 'images/combatShotgun.png',
         'imageSize': (800, 236)},
     'heavyAssaultRifle': {
         'fName': 'Heavy Assault Rifle',
         'hasMods': True,
-        'imagePath': 'res/images/heavyAssaultRifle.png',
+        'imagePath': 'images/heavyAssaultRifle.png',
         'imageSize': (int(770 * IMAGE_SCALE), int(294 * IMAGE_SCALE))},
     'plasmaRifle': {
         'fName': 'Plasma Rifle',
         'hasMods': True,
-        'imagePath': 'res/images/plasmaRifle.png',
+        'imagePath': 'images/plasmaRifle.png',
         'imageSize': (int(630 * IMAGE_SCALE), int(296 * IMAGE_SCALE))},
     'rocketLauncher': {
         'fName': 'Rocket Launcher',
         'hasMods': True,
-        'imagePath': 'res/images/rocketLauncher.png',
+        'imagePath': 'images/rocketLauncher.png',
         'imageSize': (800, 237)},
     'superShotgun': {
         'fName': 'Super Shotgun',
         'hasMods': False,
-        'imagePath': 'res/images/superShotgun.png',
+        'imagePath': 'images/superShotgun.png',
         'imageSize': (800, 207)},
     'gaussCannon': {
         'fName': 'Gauss Cannon',
         'hasMods': True,
-        'imagePath': 'res/images/gaussCannon.png',
+        'imagePath': 'images/gaussCannon.png',
         'imageSize': (799, 172)},
     'chaingun': {
         'fName': 'Chaingun',
         'hasMods': True,
-        'imagePath': 'res/images/chaingun.png',
+        'imagePath': 'images/chaingun.png',
         'imageSize': (765, 285)},
 }
 
@@ -151,3 +153,14 @@ LEVEL_INHERITANCE_MAP = {
 def clamp(num: int, smallest: int, largest: int) -> int:
     """ Clamps an int within the passed range. """
     return max(smallest, min(num, largest))
+
+def resource_path(relative_path):
+    """ Returns the absolute path to the passed resource. """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = getattr(sys, '_MEIPASS', os.getcwd())
+    except Exception:
+        base_path = os.path.abspath(".")
+    
+    subdir_path = base_path + r'\res'
+    return os.path.join(subdir_path, relative_path)
