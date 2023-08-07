@@ -9,10 +9,12 @@ Define your own starting inventory from any potential combination of equipment (
 Additionally, runes can be "permanently equipped" without taking up a Rune slot - allowing you to equip as many as you like simultaneously.  
 
 Take it. It will give you strength, help you on your journey - if you can withstand the power surge.  
-
+  
  Praetor Suit | Equipment & Weapons | Weapon Mods | Runes
 |------------|-------------|-------------|-------------|
-| <img src="https://github.com/andrewcreekmore/DOOM-NewGamePlusCustomizer/assets/44483269/e1c170be-c3b8-490a-bb02-3be33f585a34" width="250"> | <img src="https://github.com/andrewcreekmore/DOOM-NewGamePlusCustomizer/assets/44483269/13eedd0a-d056-4bab-b7fd-e97094ab1a63" width="250"> | <img src="https://github.com/andrewcreekmore/DOOM-NewGamePlusCustomizer/assets/44483269/f18e7b76-04b6-4b90-89a2-f2bcaf5a6f92" width="250"> | <img src="https://github.com/andrewcreekmore/DOOM-NewGamePlusCustomizer/assets/44483269/b7779bb2-492d-4e7b-9ff8-7ee227fae732" width="250"> |
+| <img src="https://github.com/andrewcreekmore/DOOM-NewGamePlusCustomizer/assets/44483269/bb6ceb4c-a7d9-4d54-9b0a-0cf630c56324" width="250"> | <img src="https://github.com/andrewcreekmore/DOOM-NewGamePlusCustomizer/assets/44483269/8bff97e8-3a9c-4d5e-8232-dbf369519507" width="250"> | <img src="https://github.com/andrewcreekmore/DOOM-NewGamePlusCustomizer/assets/44483269/366445f3-3c60-4fa9-b0d0-94b32ef9dea5" width="250"> | <img src="https://github.com/andrewcreekmore/DOOM-NewGamePlusCustomizer/assets/44483269/b16f9ce3-e23e-4581-8cb5-36589a958d54" width="250"> |  
+
+Hovering over any element will yield a tooltip message with an in-game description, for ease of use.  
 
 ### Usage
 
