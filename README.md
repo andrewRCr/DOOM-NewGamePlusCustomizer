@@ -3,7 +3,7 @@
 Custom simulated "new game plus" mod generation tool for DOOM (2016).  
 Credit to [@elizabethany](https://github.com/elizabethany) for creating the original [NewGamePlus mod](https://www.nexusmods.com/doom/mods/28), which inspired this project.  
 
-### Overview  
+## Overview  
 Define your own starting inventory from any potential combination of equipment (throwables / double-jump thrust boots), weapons, weapon mods, suit upgrades (Argent Cell and/or Praetor Token), and runes. Runes and weapon mods can be added with or without their upgrades.  
 
 Additionally, runes can be "permanently equipped" without taking up a Rune slot - allowing you to equip as many as you like simultaneously.  
@@ -16,9 +16,11 @@ Take it. It will give you strength, help you on your journey - if you can withst
 
 Hovering over any element will yield a tooltip message with an in-game description, for ease of use.  
 
-### Usage
+## Installation
 
 After selecting your loadout, press 'Generate Mod' and a .zip archive titled 'Custom New Game Plus' will be placed in the indicated directory path (if a Steam installation of DOOM is detected on the C:/ drive, this path will be pre-populated; otherwise you will need to specify it). Once this .zip has been placed into your local installation's Mods directory (i.e., 'steamapps/common/DOOM/Mods'), run [DOOMModLoader](https://github.com/jfmherokiller/DOOMExtract/releases/tag/1.8) to install the mod. [DOOMLauncher](https://github.com/PowerBall253/DOOMLauncher) is also recommended in order to bypass dev-mode restrictions. 
+
+## Usage
 
 Note that at least one category (health, armor, ammo) of Argent Cell upgrades must not be fully added, in order to allow the player to pick up the mandatory first upgrade given at the end of Resource Ops. The tool enforces this restriction.
 
