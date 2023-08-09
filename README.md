@@ -18,12 +18,16 @@ Hovering over any element will yield a tooltip message with an in-game descripti
 
 ## Installation
 
-After selecting your loadout, press 'Generate Mod' and a .zip archive titled 'Custom New Game Plus' will be placed in the indicated directory path (if a Steam installation of DOOM is detected on the C:/ drive, this path will be pre-populated; otherwise you will need to specify it). Once this .zip has been placed into your local installation's Mods directory (i.e., 'steamapps/common/DOOM/Mods'), run [DOOMModLoader](https://github.com/jfmherokiller/DOOMExtract/releases/tag/1.8) to install the mod. [DOOMLauncher](https://github.com/PowerBall253/DOOMLauncher) is also recommended in order to bypass dev-mode restrictions. 
+- Download (can be placed anywhere) and run the [DOOM (2016) NG+ Customizer](https://github.com/andrewcreekmore/DOOM-NewGamePlusCustomizer/releases/latest) executable.
+- After selecting your loadout, press 'Generate Mod' and a .zip archive titled 'Custom New Game Plus' will be placed in the indicated directory path. If a Steam installation of DOOM is detected on the C:/ drive, this path will be pre-populated; otherwise you will need to specify it (i.e., 'steamapps/common/DOOM'). At this location, a Mods folder will be created if it doesn't already exist. Note that if you generate another mod to this path with this tool, it will automatically replace the previously created version with the new .zip archive.
+- Use the command line argument ``` +devMode_enable 1 ``` to ensure the game launches in developer mode (if using Steam, right click DOOM and select Properties. Under General, scroll down to the bottom and find Launch Options - place the argument here).
+- Download [DOOMModLoader](https://github.com/jfmherokiller/DOOMExtract/releases/tag/1.8) and place both files (.exe and .dll) in your local game installation's top level (i.e., 'steamapps/common/DOOM). Run the .exe to install the mod (and any other mods in the Mods directory). Uninstall mods by removing them from the Mods directory and running DOOMModLoader again. Note that the game will automatically launch each time this tool is run.
+- Although optional, to bypass the restrictions of dev-mode (disabled achievements, etc) [DOOMLauncher](https://github.com/PowerBall253/DOOMLauncher) is recommended. Download and place it in your local game installation's top level and use this to launch the game (not Steam or the DOOM executable directly). You can create a shortcut to DOOMLauncher and place it on your desktop for convenience. 
 
 ## Usage
 
 Note that at least one category (health, armor, ammo) of Argent Cell upgrades must not be fully added, in order to allow the player to pick up the mandatory first upgrade given at the end of Resource Ops. The tool enforces this restriction.
 
-If you choose to add a weapon mod's upgrades but not the weapon mod itself, when you obtain it during the campaign it will already be fully upgraded. Note that you may need to unequip and reequip the mod in question for this to take effect.  Runes can't be preemptively upgraded in this way (i.e., without also unlocking them), due to how their inventory data is structured.
+Weapon mods added will not be automatically equipped; press the Switch Mod (L Alt) key to do so (or equip from the inventory menu). If you choose to add a weapon mod's upgrades but not the weapon mod itself, when you obtain it during the campaign it will already be fully upgraded. Note that you may need to unequip and reequip the mod in question for this to take effect.  Runes can't be preemptively upgraded in this way (i.e., without also unlocking them), due to how their inventory data is structured.
 
 Starting a new game is required.
