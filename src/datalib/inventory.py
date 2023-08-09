@@ -26,7 +26,7 @@ class Inventory():
         """ Adds each InventoryModule class member to modules list. """
         self.modules = [self.argentCellUpgrades, self.praetorSuitUpgrades, self.equipment, self.weapons, self.weaponMods, self.ammo, self.runes]
 
-    def generateDeclFile(self, path = None):
+    def generateDeclFile(self, path: str):
         """ Generates base.decl;devInvLoadout file based on module entries, which level-specific decls inherit from. """
 
         invItemsCount = 1 # incl. base item
@@ -35,10 +35,10 @@ class Inventory():
             invItemsCount += len(module.available)
 
         # writing to output file
-        fileNameFinal = 'base.decl;devInvLoadout'
-        fileNameTemp = 'loadout.txt'
+        fileNameProduction = path + r'\base.decl;devInvLoadout'
+        fileNameDev = 'loadout.txt'
 
-        with open(fileNameTemp, 'w+') as file:
+        with open(fileNameProduction, 'w+') as file:
             file.write('{\n' + indent)
             file.write('edit = {\n' + doubleIndent + 'startingInventory = {')
             file.write('\n' + tripleIndent + f'num = {invItemsCount};')
@@ -55,8 +55,6 @@ class Inventory():
                 module.updateModuleData()
                 
                 for eachEntry in module.available:
-                    # if itemIndex == 4: # index 4 needs to be skipped for some unknown reason
-                    #     itemIndex += 1
                     file.write('\n' + tripleIndent + f'item[{itemIndex}] = ' + '{')
                     
                     for key, value in eachEntry.data.items():

@@ -61,11 +61,9 @@ class App(ctk.CTk):
         self.mainContentFrame = ctk.CTkFrame(self, fg_color= 'transparent')
         self.mainContentFrame.pack(fill = 'both', expand = True)
         
-        # setup fonts
+        # setup fonts, SFX
         self.initFonts()
-        
-        # initialize pygame sound mixer
-        pygame.mixer.init()
+        self.initSFX()
 
         # create default starting inventory
         self.inventory = Inventory()
@@ -93,8 +91,7 @@ class App(ctk.CTk):
         
         match type:
             case PopupType.PT_ERROR:
-                pygame.mixer.music.load(resource_path(r'sounds/dsoof.wav'))
-                pygame.mixer.music.play(loops = 0)
+                self.errorSound.play()
                 newPopupMessage = errorPopupMsg(self, offsetX, offsetY, message)
                 
             case PopupType.PT_INFO:
@@ -127,14 +124,24 @@ class App(ctk.CTk):
         self.checkboxFont = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['Checkboxes'])
         self.switchFont = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['Switches'])
         self.runeSubOptionFont = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['RuneSubOption'])
+    
+    def initSFX(self):
+        """ Initializes pygame sound mixer, loads all app Sounds, and sets their volume. """
+        
+        pygame.mixer.init()
+        
+        self.tabChangeSound = pygame.mixer.Sound(resource_path(r'sounds/sgreload.wav'))
+        self.toggleSound = pygame.mixer.Sound(resource_path(r'sounds/dsitemup.wav'))
+        self.errorSound = pygame.mixer.Sound(resource_path(r'sounds/dsoof.wav'))
+        self.confirmationSound = pygame.mixer.Sound(resource_path(r'sounds/dsgetpow.wav'))
+        
+        allSFX = [self.tabChangeSound, self.toggleSound, self.errorSound, self.confirmationSound]
+        
+        for sound in allSFX:
+            sound.set_volume(0.25)
             
     def initWidgets(self):
         """ Creates top-level app widgets and calls widget init functions for each inventory module. """
-
-        def playTabChangeSound():
-            """ Loads + plays tab changing sound. """
-            tabChangeSound = pygame.mixer.Sound(resource_path('sounds/sgreload.wav'))
-            tabChangeSound.play()
             
         # setup category tabs for inventory module grouping
         self.tabMenu = ctk.CTkTabview(
@@ -147,7 +154,7 @@ class App(ctk.CTk):
             segmented_button_selected_hover_color =  RED_HIGHLIGHT,
             border_width = 2,
             border_color = WHITE,
-            command = playTabChangeSound)
+            command = self.tabChangeSound.play)
         
         self.tabMenu._segmented_button.configure(font = self.tabFont, border_width = 1, bg_color = WHITE)
         self.tabMenu.pack_propagate(True)
@@ -240,7 +247,7 @@ class App(ctk.CTk):
             ARGENT_DROPDOWN_DATA[category]['Dropdown'] = categoryDropdown
             columnIndex += 1
 
-    def argentCallback(self, category: str, selection: str):
+    def argentCallback(self, category: str, selection: str, fromAllSwitch: bool = False):
         """ Attempts to set the passed Argent category's value to the passed selection. """
   
         def showUpgradeLimitPopupMsg():
@@ -275,6 +282,9 @@ class App(ctk.CTk):
             validatedSelectionKey: int = self.inventory.argentCellUpgrades.setArgentLevel(category, selectionKey)
             if validatedSelectionKey != selectionKey:
                 showUpgradeLimitPopupMsg()
+            else:
+                if not fromAllSwitch:
+                    self.toggleSound.play()
             return validatedSelectionKey
         
         lookup = ARGENT_DROPDOWN_DATA[category]['Levels']
@@ -297,10 +307,11 @@ class App(ctk.CTk):
         
         if allSwitchOn:
             for index, category in enumerate(allArgentCategories):
-                self.argentCallback(category, allArgentLevels[index][4])
+                self.argentCallback(category, allArgentLevels[index][4], True)
         else:
+            self.toggleSound.play()
             for index, category in enumerate(allArgentCategories):
-                self.argentCallback(category, allArgentLevels[index][0])   
+                self.argentCallback(category, allArgentLevels[index][0], True)   
 
     def initPraetorWidgets(self):
         """ Creates widgets for the PraetorSuitUpgrades inventory module. """
@@ -371,6 +382,8 @@ class App(ctk.CTk):
     def praetorCallback(self, perkName: str):
         """ Toggles a PraetorPerk's availability.  """
         
+        self.toggleSound.play()
+        
         # if not in available, add it; else, remove
         found = False
         for perk in self.inventory.praetorSuitUpgrades.available:
@@ -390,6 +403,7 @@ class App(ctk.CTk):
     def toggleAllPraetorUpgrades(self):
         """ Adds/removes every upgrade, and selects/deselects checkboxes accordingly.  """
         
+        self.toggleSound.play()
         allSwitchOn = self.toggleAllPraetorSwitch.get()
         
         if allSwitchOn:
@@ -454,6 +468,8 @@ class App(ctk.CTk):
     def equipmentCallback(self, equipmentItemName: str):
         """ Toggles an EquipmentItem's availability.  """
         
+        self.toggleSound.play()
+        
         # if not in available, add it; else, remove
         found = False
         for equipmentItem in self.inventory.equipment.available:
@@ -473,6 +489,7 @@ class App(ctk.CTk):
     def toggleAllEquipment(self):
         """ Adds/removes all equipment, and selects/deselects checkboxes accordingly.  """
         
+        self.toggleSound.play()
         allSwitchOn = self.toggleAllEquipmentSwitch.get()
         
         if allSwitchOn:
@@ -548,12 +565,30 @@ class App(ctk.CTk):
     def weaponsCallback(self, weaponItemName: str):
         """ Toggles a WeaponItem's availability.  """
         
+        def areOtherAvailableWeaponsUsingSameAmmo(ammoType) -> bool:
+            """ Returns whether any currently Available weapons are using the passed ammoType. """
+            
+            for weapon in self.inventory.weapons.available:
+                if self.inventory.weapons.getAmmoTypeForWeapon(weapon.name) == ammoType:
+                    return True
+            return False
+        
+        self.toggleSound.play()
+        ammoType = self.inventory.weapons.getAmmoTypeForWeapon(weaponItemName)
+        
         # if not in available, add it; else, remove
         found = False
         for weaponItem in self.inventory.weapons.available:
             if weaponItem.name == weaponItemName:
                 found = True
                 self.inventory.weapons.available.remove(weaponItem)
+                
+                # remove its ammo as well, if no other avail weapons use it
+                if not areOtherAvailableWeaponsUsingSameAmmo:
+                    if ammoType:
+                        ammo = getattr(self.inventory.ammo, ammoType)
+                        self.inventory.ammo.available.remove(ammo)
+                        
                 # clear toggleAll switch - all are no longer selected
                 if self.toggleAllWeaponsSwitch.get():
                     self.toggleAllWeaponsSwitch.deselect()
@@ -561,26 +596,30 @@ class App(ctk.CTk):
             
         if not found:
             self.inventory.weapons.addToAvailable(weaponItemName) # add it
+            
             # if all are available, update UI toggle all switch to reflect that
             if len(self.inventory.weapons.available) == 11:
                 self.toggleAllWeaponsSwitch.select()  
+                
             # add corresponding ammo to available, if not
-            ammoType = self.inventory.weapons.getAmmoTypeForWeapon(weaponItemName)
             if ammoType and ammoType not in self.inventory.ammo.available:
                 self.inventory.ammo.addToAvailable(ammoType)
     
     def toggleAllWeapons(self):
-        """ Adds/removes all weapons, and selects/deselects checkboxes accordingly.  """
+        """ Adds/removes all weapons (and their ammo), and selects/deselects checkboxes accordingly.  """
         
+        self.toggleSound.play()
         allSwitchOn = self.toggleAllWeaponsSwitch.get()
         
         if allSwitchOn:
             self.inventory.weapons.addAllToAvailable()
+            self.inventory.ammo.addAllToAvailable()
             # update UI - all weapon checkboxes
             for each in self.weaponsCheckboxWidgets:
                 each.select()
         else:
             self.inventory.weapons.available.clear()
+            self.inventory.ammo.available.clear()
             for each in self.weaponsCheckboxWidgets:
                 each.deselect()    
   
@@ -658,6 +697,7 @@ class App(ctk.CTk):
                     availableTally += 1   
             return True if availableTally == 12 else False
         
+        self.toggleSound.play()
         weaponModPerk = self.inventory.weaponMods.getWeaponModPerkFromName(weaponModPerkName)
         
         if weaponModPerk:
@@ -682,6 +722,7 @@ class App(ctk.CTk):
     def toggleAllWeaponModsAvailable(self):
         """ Adds/removes all base WeaponModPerks, and selects/deselects checkboxes accordingly.  """
         
+        self.toggleSound.play()
         allSwitchOn = self.toggleAllWeaponModsAvailableSwitch.get()
         
         if allSwitchOn:
@@ -698,6 +739,7 @@ class App(ctk.CTk):
     def toggleAllWeaponModsUpgraded(self):
         """ Adds/removes all upgrade WeaponModPerks, and selects/deselects checkboxes accordingly.  """
         
+        self.toggleSound.play()
         allSwitchOn = self.toggleAllWeaponModsUpgradedSwitch.get()
         
         if allSwitchOn:
@@ -794,6 +836,7 @@ class App(ctk.CTk):
     def runeAvailableCallback(self, runePerkName: str):
         """ Toggles a RunePerk's availability.  """
         
+        self.toggleSound.play()
         runePanel = RUNE_PANEL_DATA[runePerkName]['panel']
         
         if runePanel:
@@ -822,6 +865,7 @@ class App(ctk.CTk):
     def runeUpgradedCallback(self, runePerkName: str):
         """ Toggles a RunePerk's Upgraded status. """
         
+        self.toggleSound.play()
         rune = self.inventory.runes.getRunePerkFromName(runePerkName)
         if rune:
             if rune.applyUpgradesForPerk:
@@ -842,6 +886,7 @@ class App(ctk.CTk):
     def runePermEquipCallback(self, runePerkName: str):
         """ Toggles a RunePerk's Permanently Equipped status. """
         
+        self.toggleSound.play()
         rune = self.inventory.runes.getRunePerkFromName(runePerkName)
         if rune:
             if rune.runePermanentEquip:
@@ -862,6 +907,7 @@ class App(ctk.CTk):
     def toggleAllRunesAvailable(self):
         """ Adds/removes all RunePerks, and selects/deselects checkboxes + enables/disables sub-options accordingly.  """
         
+        self.toggleSound.play()
         allSwitchOn = self.toggleAllRunesAvailableSwitch.get()
         
         if allSwitchOn:
@@ -900,7 +946,8 @@ class App(ctk.CTk):
     
     def toggleAllRunesUpgraded(self):
         """ Toggles applyUpgradesForPerk flag for all RunePerks, and selects/deselects checkboxes + enables/disables sub-options accordingly. """
-                
+        
+        self.toggleSound.play()   
         allSwitchOn = self.toggleAllRunesUpgradedSwitch.get()
         
         if allSwitchOn:
@@ -916,6 +963,7 @@ class App(ctk.CTk):
     def toggleAllRunesPermEquip(self):
         """ Toggles runePermanentEquip flag for all RunePerks, and selects/deselects checkboxes + enables/disables sub-options accordingly. """
         
+        self.toggleSound.play()
         allSwitchOn = self.toggleAllRunesPermEquipSwitch.get()
         
         if allSwitchOn:
@@ -927,7 +975,9 @@ class App(ctk.CTk):
             self.inventory.runes.setAllArePermEquip(False)
             for each in self.runesPermEquipCheckboxWidgets:
                 each.deselect()
-        
+    
+
+       
     def makeLevelInheritanceDecls(self, path):
         """ Creates decl files for each game level, with inventory inheriting from the previous level. """
 
@@ -940,6 +990,16 @@ class App(ctk.CTk):
                 file.write('\n' + indent + '}')
                 file.write('\n}')
 
+    def verifyModContents(self):
+        """ Any final validation checks of current values prior to mod generation. """
+        
+        # adjusting ammo capacity argent level won't take effect unless at least one weapon with ammo in inventory
+        # since combat shotgun is received 30 sec into game, giving it slightly early to make this work
+        if self.inventory.argentCellUpgrades.ammoCapacity.count > 0:
+            # note: will not be added if user already added manually
+            self.inventory.weapons.addToAvailable('combatShotgun')
+            self.inventory.ammo.addToAvailable('shells')
+    
     def promptUserForPath(self):
         """ Opens a dialog asking user to select a directory. Sets internal values accordingly. """
         
@@ -956,12 +1016,13 @@ class App(ctk.CTk):
     def generateMod(self):
         """ Top-level function for generating final, usable mod output file from current app data values. """
         
+        # perform final validation
+        self.verifyModContents()
+        
         # check for valid path; prompt user if needed
         if self.doomInstallationPath is None:
             # c:\ DOOM installation wasn't found during app init; need path
-            #pygame.mixer.music.load('res/sounds/dsoof.wav')
-            pygame.mixer.music.load(resource_path(r'sounds/dsoof.wav'))
-            pygame.mixer.music.play(loops = 0)
+            self.errorSound.play()
             message = 'Local C:/ installation of DOOM not found. Browse for /DOOM install directory?'
             self.createPopupMessage(PopupType.PT_PATH, -60, -100, message)
             return
@@ -995,10 +1056,7 @@ class App(ctk.CTk):
         os.remove(outputFileSource)
         
         # play confirmation sound + show message
-        #confirmationSound = pygame.mixer.Sound('res/sounds/dsgetpow.wav')
-        confirmationSound = pygame.mixer.Sound(resource_path('sounds/dsgetpow.wav'))
-        confirmationSound.play()
-        
+        self.confirmationSound.play()
         outputPathStr = topLevelPath.replace('\\', '/')
         confirmMessage: str = f'Mod generated and placed in:\n{str(outputPathStr)}'
         self.createPopupMessage(PopupType.PT_INFO, -60, 0, confirmMessage)

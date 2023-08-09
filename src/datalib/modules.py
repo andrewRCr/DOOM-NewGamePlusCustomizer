@@ -151,13 +151,13 @@ class PraetorSuitUpgrades(InventoryModule):
         name = 'stockUp', 
         fName = 'Stock Up',
         category = 'Equipment System',
-        path = 'perk/zion/player/sp/enviroment_suit/equipment_2',
+        path = '"perk/zion/player/sp/enviroment_suit/equipment_2"',
         description = 'The total number of equipment charges is increased.')
     rapidCharge = PraetorPerk(
         name = 'rapidCharge', 
         fName = 'Rapid Charge',
         category = 'Equipment System',
-        path = 'perk/zion/player/sp/enviroment_suit/equipment_3',
+        path = '"perk/zion/player/sp/enviroment_suit/equipment_3"',
         description = 'Recharge duration is further reduced.')
     
     # powerup effectiveness
@@ -331,16 +331,10 @@ class Equipment(InventoryModule):
     doubleJumpThrustBoots = EquipmentItem(
         name = 'doubleJumpThrustBoots', 
         fName = 'Delta V Jump-Boots',
-        path = "jumpboots/base", 
+        path = '"jumpboots/base"', 
         equip = True,
         description = 'A UAC-engineered device which enables a second thruster-based mid-air jump\n' 
         + 'to be performed, greatly increasing maximum jumping distance and height.')
-    decoyHologram = EquipmentItem(
-        name = 'decoyHologram',
-        fName = 'Decoy Hologram',
-        path ='"decoyhologram/equipment"',
-        description = 'Functions by projecting an image into a cloud of ionized argon gas.\n' 
-        + 'The broad-spectrum image creates a convincing illusion which can distract enemies.')
     fragGrenade = EquipmentItem(
         name = 'fragGrenade',
         fName = 'Frag Grenade', 
@@ -355,14 +349,17 @@ class Equipment(InventoryModule):
         description = 'Functions on the basis of alternately charged Argent energy fields, creating a positive charge on the user\'s\n' 
         + 'suit and exploding with a negatively charged field. The resulting differential creates an attractive Argent field\n' 
         + 'that pulls plasma from any demons caught in the blast radius, feeding it back as energy which can heal.')
+    decoyHologram = EquipmentItem(
+        name = 'decoyHologram',
+        fName = 'Decoy Hologram',
+        path ='"decoyhologram/equipment"',
+        description = 'Functions by projecting an image into a cloud of ionized argon gas.\n' 
+        + 'The broad-spectrum image creates a convincing illusion which can distract enemies.')
      
         
 @dataclass
 class Weapons(InventoryModule):
     """ Represents a collection of possible/available WeaponItems. """
-    
-    # TODO: figure out what '"summonweapon/base"' is and when/why it needs to be included; it's before the BFG is added in a full loadout decl
-    #summonWeapon = WeaponItem('summonWeapon', '"summonweapon/base"')
     
     def __post_init__(self) -> None:
         """ Adds default starting armaments to available pool. """
@@ -431,7 +428,7 @@ class Weapons(InventoryModule):
     gaussCannon = WeaponItem(
         name = 'gaussCannon', 
         fName = 'Gauss Cannon',
-        path = "weapon/zion/player/sp/gauss_rifle",
+        path = '"weapon/zion/player/sp/gauss_rifle"',
         description = 'A devastatingly accurate long-range weapon with a noticeable kick that must be compensated by the operator.')
     chaingun = WeaponItem(
         name = 'chaingun', 
@@ -443,7 +440,7 @@ class Weapons(InventoryModule):
         name = 'bfg9000', 
         fName = 'BFG-9000', 
         ammoType = 'bfg',
-        path = "weapon/zion/player/sp/bfg",
+        path = '"weapon/zion/player/sp/bfg"',
         description = 'The BFG-9000 is a weapon with massive power - use it to devastate your enemies.\n'
         + 'Most research regarding the BFG-9000 remains classified.\n' 
         + 'The design was first [REDACTED] by [REDACTED] and [REDACTED].')
@@ -544,7 +541,7 @@ class WeaponMods(InventoryModule):
         name = 'increasedPowerMastery',
         fName = 'MASTERY: Increased Power',
         applicableWeapon = 'pistol',
-        path = '"perk/zion/player/sp/weapons/pistol/secondary_charge_shot_higher_damage',
+        path = '"perk/zion/player/sp/weapons/pistol/secondary_charge_shot_higher_damage"',
         description = 'Charged shots do more damage.')
     
     # COMBAT SHOTGUN
@@ -562,7 +559,7 @@ class WeaponMods(InventoryModule):
         fName = 'Speedy Recovery',
         applicableWeapon = 'combatShotgun',
         applicableMod = 'chargedBurst',
-        path = 'perk/zion/player/sp/weapons/shotgun/secondary_charge_burst_faster_recharge',
+        path = '"perk/zion/player/sp/weapons/shotgun/secondary_charge_burst_faster_recharge"',
         description = 'Decreases recharge time of the mod.')
     chargedBurst_rapidFire = WeaponModPerk(
         name = 'chargedBurst_rapidFire',
@@ -623,7 +620,7 @@ class WeaponMods(InventoryModule):
         fName = 'MASTERY: Cluster Strike',
         applicableWeapon = 'combatShotgun',
         applicableMod = 'explosiveShot',
-        path = 'perk/zion/player/sp/weapons/shotgun/pop_rocket_mastery',
+        path = '"perk/zion/player/sp/weapons/shotgun/pop_rocket_mastery"',
         description = 'Cluster bombs will spawn upon a direct impact on a demon providing further damage.')
     
     # SUPER SHOTGUN upgrades (no mods)
@@ -933,7 +930,7 @@ class WeaponMods(InventoryModule):
         fName = 'Reduced Charge',
         applicableWeapon = 'gaussCannon',
         applicableMod = 'siegeMode',
-        path = '"perk/zion/player/sp/weapons/gauss_cannon/siege_mode_reduced_charge_time";',
+        path = '"perk/zion/player/sp/weapons/gauss_cannon/siege_mode_reduced_charge_time"',
         description = 'Decreases charging time.')
     siegeMode_mobileSiege_mastery = WeaponModPerk(
         name = 'siegeMode_mobileSiege_mastery',

@@ -101,7 +101,10 @@ class WeaponModPerk(InventoryPerk):
     description: str = 'no description provided'
     
     def updateData(self):
-        self.data = {'perk': self.path, 'equip': 'true'}
+        if self.applicableMod == 'isBaseMod':
+            self.data = {'perk': self.path}
+        else:
+            self.data = {'perk': self.path, 'equip': 'true'}
 
 
 @dataclass
