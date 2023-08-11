@@ -690,7 +690,8 @@ class App(ctk.CTk):
         """ Toggles a WeaponModPerk's availability.  """
         
         def checkIfAllBaseModsAvailable():
-            """ """
+            """ Returns whether the user has made all weapon base mods (not upgrades) available. """
+            
             availableTally = 0
             for each in self.inventory.weaponMods.available:
                 if type(each) is WeaponModPerk and each.applicableMod == 'isBaseMod':
@@ -1269,10 +1270,6 @@ class WeaponTab():
             imageSize_x = WEAPON_MOD_PANEL_DATA[weaponName]['imageSize'][0]
             imageSize_y = WEAPON_MOD_PANEL_DATA[weaponName]['imageSize'][1]
             
-            # self.weaponImage = ctk.CTkImage(light_image = Image.open(WEAPON_MOD_PANEL_DATA[weaponName]['imagePath']), 
-            #                             dark_image = Image.open(WEAPON_MOD_PANEL_DATA[weaponName]['imagePath']),
-            #                             size = (int(imageSize_x * .75), int(imageSize_y * .75)))
-            
             self.weaponImage = ctk.CTkImage(light_image = Image.open(resource_path(WEAPON_MOD_PANEL_DATA[weaponName]['imagePath'])), 
                             dark_image = Image.open(resource_path(WEAPON_MOD_PANEL_DATA[weaponName]['imagePath'])),
                             size = (int(imageSize_x * .75), int(imageSize_y * .75)))
@@ -1320,7 +1317,6 @@ class WeaponTabNoMods():
                 checkboxWidth = 20)
             parentApp.weaponModUpgradesAvailableCheckboxWidgets.append(self.weaponModUpgradeCheckbox)
             rowIndex += 1
-        
         
         imageSize_x = WEAPON_MOD_PANEL_DATA[weaponName]['imageSize'][0]
         imageSize_y = WEAPON_MOD_PANEL_DATA[weaponName]['imageSize'][1]

@@ -48,7 +48,7 @@ class ArgentPerk(InventoryPerk):
     count: int = 0
     
     def updateData(self):
-        """ """
+        """ Creates/updates element's data dictionary for tool output. """
         if self.name != 'ammoCapacity':
             self.data = {'perk': self.path, 'count': self.count, 'equip': 'true', 'remove_after_equip': 'true'}
         else: # gets additional 'applyAfterLoadout' key
@@ -64,6 +64,7 @@ class PraetorPerk(InventoryPerk):
     unlockable: Optional[str] = None
     
     def updateData(self):
+        """ Creates/updates element's data dictionary for tool output. """
         if self.unlockable:
             self.data = {'perk': self.path, 'unlockable': self.unlockable, 'equip': 'true'}
         else:
@@ -83,6 +84,7 @@ class RunePerk(InventoryPerk):
     upgradeDescription: str = 'no upgrade description provided'
     
     def updateData(self):
+        """ Creates/updates element's data dictionary for tool output. """
         # mod option: make rune perk permanent without taking up a rune slot
         if self.runePermanentEquip:
             self.data = {'perk': self.path, 'applyUpgradesForPerk': str(self.applyUpgradesForPerk).lower(), 'equip': 'true'}
@@ -101,6 +103,7 @@ class WeaponModPerk(InventoryPerk):
     description: str = 'no description provided'
     
     def updateData(self):
+        """ Creates/updates element's data dictionary for tool output. """
         if self.applicableMod == 'isBaseMod':
             self.data = {'perk': self.path}
         else:
@@ -121,6 +124,7 @@ class EquipmentItem(InventoryItem):
     """ Represents double-jump thrust boots and throwables. """
     
     def updateData(self):
+        """ Creates/updates element's data dictionary for tool output. """
         if self.equip:
             self.data = {'item': self.path, 'equip': 'true'}
         else:
@@ -151,6 +155,6 @@ class AmmoItem(InventoryItem):
     count: int = 0
     
     def updateData(self):
-        """ """
+        """ Creates/updates element's data dictionary for tool output. """
         self.data = {'item': self.path, 'count': self.count, 'applyAfterLoadout': 'true'}
                        
