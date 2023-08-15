@@ -28,6 +28,6 @@ Hovering over any element will yield a tooltip message with an in-game descripti
 
 Note that at least one category (health, armor, ammo) of Argent Cell upgrades must not be fully added, in order to allow the player to pick up the mandatory first upgrade given at the end of Resource Ops. The tool enforces this restriction.
 
-Weapon mods added will not be automatically equipped; press the Switch Mod (L Alt) key to do so (or equip from the inventory menu). If you choose to add a weapon mod's upgrades but not the weapon mod itself, when you obtain it during the campaign it will already be fully upgraded. Note that you may need to unequip and reequip the mod in question for this to take effect.  Runes can't be preemptively upgraded in this way (i.e., without also unlocking them), due to how their inventory data is structured.
+Weapon mods added will not be automatically equipped; press the Switch Mod (R by default) key to do so (or equip from the inventory menu). If you choose to add a weapon mod's upgrades but not the weapon mod itself, when you obtain it during the campaign it will already be fully upgraded. Note that you may need to unequip and reequip the mod in question for this to take effect.  Runes can't be preemptively upgraded in this way (i.e., without also unlocking them), due to how their inventory data is structured.
 
 Starting a new game is required.
