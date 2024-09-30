@@ -18,11 +18,10 @@ Hovering over any element will yield a tooltip message with an in-game descripti
 
 ## Installation
 
-- Download (can be placed anywhere) and run the [DOOM (2016) NG+ Customizer](https://github.com/andrewcreekmore/DOOM-NewGamePlusCustomizer/releases/latest) executable.
+- Download (can be placed anywhere) and run the [DOOM (2016) NG+ Customizer](https://github.com/andrewRCr/DOOM-NewGamePlusCustomizer/releases/latest) executable.
 - After selecting your loadout, press 'Generate Mod' and a .zip archive titled 'Custom New Game Plus' will be placed in the indicated directory path. If a Steam installation of DOOM is detected on the C:/ drive, this path will be pre-populated; otherwise you will need to specify it (i.e., 'steamapps/common/DOOM'). At this location, a Mods folder will be created if it doesn't already exist. Note that if you generate another mod to this path with this tool, it will automatically replace the previously created version with the new .zip archive.
-- Use the command line argument ``` +devMode_enable 1 ``` to ensure the game launches in developer mode (if using Steam, right click DOOM and select Properties. Under General, scroll down to the bottom and find Launch Options - place the argument here).
-- Download [DOOMModLoader](https://github.com/jfmherokiller/DOOMExtract/releases/tag/1.8) and place both files (.exe and .dll) in your local game installation's top level (i.e., 'steamapps/common/DOOM). Run the .exe to install the mod (and any other mods in the Mods directory). Uninstall mods by removing them from the Mods directory and running DOOMModLoader again. Note that the game will automatically launch each time this tool is run.
-- Although optional, to bypass the restrictions of dev-mode (disabled achievements, etc) [DOOMLauncher](https://github.com/PowerBall253/DOOMLauncher) is recommended. Download and place it in your local game installation's top level and use this to launch the game (not Steam or the DOOM executable directly). You can create a shortcut to DOOMLauncher and place it on your desktop for convenience. 
+- Download [DOOMModLoader](https://github.com/ZwipZwapZapony/DOOMModLoader/releases) and extract the .exe to your local game installation's top level (i.e., 'steamapps/common/DOOM). Run the .exe to install the mod (and any other mods in the Mods directory). Uninstall mods by removing them from the Mods directory and running DOOMModLoader again. Note that you'll have the option to start the game each time this tool is run, but it only needs to be run once per mod install/uninstall.
+- Launch the game as you would normally. 
 
 ## Usage
 
