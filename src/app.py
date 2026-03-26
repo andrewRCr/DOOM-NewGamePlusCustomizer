@@ -1239,8 +1239,8 @@ class promptPopupMsg(popupMessage):
             yOffset=yOffset,
             message=message)
 
-        messageImage = ctk.CTkImage(light_image=Image.open('res/images/info.png'),
-                                    dark_image=Image.open('res/images/info.png'))
+        messageImage = ctk.CTkImage(light_image=Image.open(resource_path('images/info.png')),
+                                    dark_image=Image.open(resource_path('images/info.png')))
 
         self.imageLabel = ctk.CTkLabel(self.popupFrame, image=messageImage, text='')
         self.imageLabel.grid(column=0, row=0, padx=(30, 0), pady=(30, 0))

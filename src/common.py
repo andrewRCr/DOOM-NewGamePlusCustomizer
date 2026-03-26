@@ -162,5 +162,5 @@ def resource_path(relative_path):
     except Exception:
         base_path = os.path.abspath(".")
     
-    subdir_path = base_path + r'\res'
+    subdir_path = os.path.join(base_path, 'res')
     return os.path.join(subdir_path, relative_path)
