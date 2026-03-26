@@ -64,9 +64,15 @@ class App(ctk.CTk):
         self.mainContentFrame = ctk.CTkScrollableFrame(
             self,
             fg_color='transparent',
+            corner_radius=0,
             scrollbar_button_color=DARK_GRAY,
             scrollbar_button_hover_color=LIGHT_GRAY)
         self.mainContentFrame.pack(fill='both', expand=True)
+
+        # auto-hide scrollbar when content fits
+        self._scrollbar = self.mainContentFrame._scrollbar
+        self._canvas = self.mainContentFrame._parent_canvas
+        self._canvas.configure(yscrollcommand=self._dynamicScrollbar)
 
         # setup fonts, SFX
         self.initFonts()
@@ -91,6 +97,14 @@ class App(ctk.CTk):
                 c_int(TITLE_BAR_COLOR)), sizeof(c_int))  # set attribute
         except:
             pass
+
+    def _dynamicScrollbar(self, first, last):
+        """ Shows scrollbar only when content overflows the visible area. """
+        if float(first) <= 0.0 and float(last) >= 1.0:
+            self._scrollbar.grid_forget()
+        else:
+            self._scrollbar.grid(row=0, column=1, sticky='ns')
+            self._scrollbar.set(first, last)
 
     def createPopupMessage(self, type: PopupType, offsetX: int, offsetY: int, message: str):
         """ Attempts to create a pop up message; will not create duplicates. Takes app focus. """

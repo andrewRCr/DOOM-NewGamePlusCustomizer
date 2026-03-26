@@ -10,7 +10,7 @@ import os
 import sys
 
 # basic layout sizing
-WINDOW_SIZE = (1000, 840)
+WINDOW_SIZE = (1000, 800)
 
 # text attributes
 FONT = 'Helvetica'
