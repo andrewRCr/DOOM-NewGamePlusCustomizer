@@ -33,7 +33,8 @@ class App(ctk.CTk):
         # setup window
         super().__init__(fg_color=BLACK)
         self.geometry(f'{WINDOW_SIZE[0]}x{WINDOW_SIZE[1]}')  # default window size
-        self.resizable(False, False)  # non-resizable
+        self.resizable(False, True)  # allow vertical resize
+        self.minsize(WINDOW_SIZE[0], 600)
 
         # set app window title and icon
         self.title('DOOM (2016) NewGame+ Customizer')
@@ -57,8 +58,12 @@ class App(ctk.CTk):
         self.statusFrame = ctk.CTkFrame(self, fg_color='transparent')
         self.statusFrame.pack(side='bottom', fill='x')
 
-        # main content frame
-        self.mainContentFrame = ctk.CTkFrame(self, fg_color='transparent')
+        # main content frame (scrollable for smaller displays)
+        self.mainContentFrame = ctk.CTkScrollableFrame(
+            self,
+            fg_color='transparent',
+            scrollbar_button_color=DARK_GRAY,
+            scrollbar_button_hover_color=LIGHT_GRAY)
         self.mainContentFrame.pack(fill='both', expand=True)
 
         # setup fonts, SFX
