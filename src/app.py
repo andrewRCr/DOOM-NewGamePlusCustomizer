@@ -422,42 +422,51 @@ class App(ctk.CTk):
                 categoryRowIndex += 2
                 parentFrame = self.praetorCheckboxFrame2
 
-    def praetorCallback(self, perkName: str):
-        """ Toggles a PraetorPerk's availability.  """
+    def _toggleItemCallback(self, module, itemName, toggleAllSwitch, totalCount):
+        """ Generic toggle callback for simple inventory modules. Adds/removes item and updates toggle switch. """
 
         self.toggleSound.play()
 
-        # if not in available, add it; else, remove
         found = False
-        for perk in self.inventory.praetorSuitUpgrades.available:
-            if perk.name == perkName:
+        for item in module.available:
+            if item.name == itemName:
                 found = True
-                self.inventory.praetorSuitUpgrades.available.remove(perk)
-                # clear toggleAll switch - all are no longer selected
-                if self.toggleAllPraetorSwitch.get():
-                    self.toggleAllPraetorSwitch.deselect()
+                module.available.remove(item)
+                if toggleAllSwitch.get():
+                    toggleAllSwitch.deselect()
                 break
         if not found:
-            self.inventory.praetorSuitUpgrades.addToAvailable(perkName)
-            # if all are available, update UI toggle all switch to reflect that
-            if len(self.inventory.praetorSuitUpgrades.available) == 15:
-                self.toggleAllPraetorSwitch.select()
+            module.addToAvailable(itemName)
+            if len(module.available) == totalCount:
+                toggleAllSwitch.select()
+
+    def _toggleAllItems(self, module, toggleAllSwitch, checkboxWidgets):
+        """ Generic toggleAll for simple inventory modules. Adds/removes all items and updates checkboxes. """
+
+        self.toggleSound.play()
+        allSwitchOn = toggleAllSwitch.get()
+
+        if allSwitchOn:
+            module.addAllToAvailable()
+            for each in checkboxWidgets:
+                each.select()
+        else:
+            module.available.clear()
+            for each in checkboxWidgets:
+                each.deselect()
+
+    def praetorCallback(self, perkName: str):
+        """ Toggles a PraetorPerk's availability.  """
+        self._toggleItemCallback(
+            self.inventory.praetorSuitUpgrades, perkName,
+            self.toggleAllPraetorSwitch, 15)
 
     def toggleAllPraetorUpgrades(self):
         """ Adds/removes every upgrade, and selects/deselects checkboxes accordingly.  """
-
-        self.toggleSound.play()
-        allSwitchOn = self.toggleAllPraetorSwitch.get()
-
-        if allSwitchOn:
-            self.inventory.praetorSuitUpgrades.addAllToAvailable()
-            # update UI - all praetor checkboxes
-            for each in self.praetorCheckboxWidgets:
-                each.select()
-        else:
-            self.inventory.praetorSuitUpgrades.available.clear()
-            for each in self.praetorCheckboxWidgets:
-                each.deselect()
+        self._toggleAllItems(
+            self.inventory.praetorSuitUpgrades,
+            self.toggleAllPraetorSwitch,
+            self.praetorCheckboxWidgets)
 
     def initEquipmentWidgets(self):
         """ Creates widgets for the Equipment inventory module. """
@@ -515,40 +524,16 @@ class App(ctk.CTk):
 
     def equipmentCallback(self, equipmentItemName: str):
         """ Toggles an EquipmentItem's availability.  """
-
-        self.toggleSound.play()
-
-        # if not in available, add it; else, remove
-        found = False
-        for equipmentItem in self.inventory.equipment.available:
-            if equipmentItem.name == equipmentItemName:
-                found = True
-                self.inventory.equipment.available.remove(equipmentItem)
-                # clear toggleAll switch - all are no longer selected
-                if self.toggleAllEquipmentSwitch.get():
-                    self.toggleAllEquipmentSwitch.deselect()
-                break
-        if not found:
-            self.inventory.equipment.addToAvailable(equipmentItemName)
-            # if all are available, update UI toggle all switch to reflect that
-            if len(self.inventory.equipment.available) == 4:
-                self.toggleAllEquipmentSwitch.select()
+        self._toggleItemCallback(
+            self.inventory.equipment, equipmentItemName,
+            self.toggleAllEquipmentSwitch, 4)
 
     def toggleAllEquipment(self):
         """ Adds/removes all equipment, and selects/deselects checkboxes accordingly.  """
-
-        self.toggleSound.play()
-        allSwitchOn = self.toggleAllEquipmentSwitch.get()
-
-        if allSwitchOn:
-            self.inventory.equipment.addAllToAvailable()
-            # update UI - all equipment checkboxes
-            for each in self.equipmentCheckboxWidgets:
-                each.select()
-        else:
-            self.inventory.equipment.available.clear()
-            for each in self.equipmentCheckboxWidgets:
-                each.deselect()
+        self._toggleAllItems(
+            self.inventory.equipment,
+            self.toggleAllEquipmentSwitch,
+            self.equipmentCheckboxWidgets)
 
     def initWeaponWidgets(self):
         """ Creates widgets for the Weapons inventory module. """
