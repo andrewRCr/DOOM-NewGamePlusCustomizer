@@ -433,6 +433,7 @@ class Weapons(InventoryModule):
     gaussCannon = WeaponItem(
         name='gaussCannon',
         fName='Gauss Cannon',
+        ammoType='cells',
         path='"weapon/zion/player/sp/gauss_rifle"',
         description='A devastatingly accurate long-range weapon with a noticeable kick that must be compensated by the operator.')
     chaingun = WeaponItem(

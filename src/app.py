@@ -634,7 +634,7 @@ class App(ctk.CTk):
                 self.inventory.weapons.available.remove(weaponItem)
 
                 # remove its ammo as well, if no other avail weapons use it
-                if not areOtherAvailableWeaponsUsingSameAmmo:
+                if not areOtherAvailableWeaponsUsingSameAmmo(ammoType):
                     if ammoType:
                         ammo = getattr(self.inventory.ammo, ammoType)
                         self.inventory.ammo.available.remove(ammo)
@@ -652,7 +652,7 @@ class App(ctk.CTk):
                 self.toggleAllWeaponsSwitch.select()
 
             # add corresponding ammo to available, if not
-            if ammoType and ammoType not in self.inventory.ammo.available:
+            if ammoType:
                 self.inventory.ammo.addToAvailable(ammoType)
 
     def toggleAllWeapons(self):
@@ -753,26 +753,30 @@ class App(ctk.CTk):
                     availableTally += 1
             return True if availableTally == 12 else False
 
-            # proceed with toggling mod availability
-            self.toggleSound.play()
-            # if in available, remove it; else, add
-            if weaponModPerk in self.inventory.weaponMods.available:
-                self.inventory.weaponMods.available.remove(weaponModPerk)
-                # update UI - if this was a base mod, update toggle all switch to reflect new status
-                if not checkIfAllBaseModsAvailable():
-                    if self.toggleAllWeaponModsAvailableSwitch.get():
-                        self.toggleAllWeaponModsAvailableSwitch.deselect()
-                # update UI - if ANY mod was removed from available, this can't be true, so deselect switch
-                if self.toggleAllWeaponModsUpgradedSwitch.get():
-                    self.toggleAllWeaponModsUpgradedSwitch.deselect()
-            else:
-                self.inventory.weaponMods.addToAvailable(
-                    weaponModPerk.applicableWeapon, weaponModPerkName)
-                if len(self.inventory.weaponMods.available) >= 12:
-                    if checkIfAllBaseModsAvailable():
-                        self.toggleAllWeaponModsAvailableSwitch.select()
-                if len(self.inventory.weaponMods.available) == 61:
-                    self.toggleAllWeaponModsUpgradedSwitch.select()
+        weaponModPerk = self.inventory.weaponMods.getWeaponModPerkFromName(weaponModPerkName)
+        if weaponModPerk is None:
+            return
+
+        # proceed with toggling mod availability
+        self.toggleSound.play()
+        # if in available, remove it; else, add
+        if weaponModPerk in self.inventory.weaponMods.available:
+            self.inventory.weaponMods.available.remove(weaponModPerk)
+            # update UI - if this was a base mod, update toggle all switch to reflect new status
+            if not checkIfAllBaseModsAvailable():
+                if self.toggleAllWeaponModsAvailableSwitch.get():
+                    self.toggleAllWeaponModsAvailableSwitch.deselect()
+            # update UI - if ANY mod was removed from available, this can't be true, so deselect switch
+            if self.toggleAllWeaponModsUpgradedSwitch.get():
+                self.toggleAllWeaponModsUpgradedSwitch.deselect()
+        else:
+            self.inventory.weaponMods.addToAvailable(
+                weaponModPerk.applicableWeapon, weaponModPerkName)
+            if len(self.inventory.weaponMods.available) >= 12:
+                if checkIfAllBaseModsAvailable():
+                    self.toggleAllWeaponModsAvailableSwitch.select()
+            if len(self.inventory.weaponMods.available) == 61:
+                self.toggleAllWeaponModsUpgradedSwitch.select()
 
     def toggleAllWeaponModsAvailable(self):
         """ Adds/removes all base WeaponModPerks, and selects/deselects checkboxes accordingly.  """
@@ -865,7 +869,7 @@ class App(ctk.CTk):
         # setup rune checkbox display: 4 frames, 1 per row
         allRuneFrames = []
         rowIndex = 5
-        for i in range(4):
+        for _ in range(4):
             runeFrame = ctk.CTkFrame(parentTab, fg_color='transparent')
             runeFrame.grid(column=0, row=rowIndex, pady=(10, 10))
             allRuneFrames.append(runeFrame)
