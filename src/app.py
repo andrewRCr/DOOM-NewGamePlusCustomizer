@@ -147,6 +147,30 @@ class App(ctk.CTk):
         for sound in allSFX:
             sound.set_volume(0.25)
 
+    def _createScrollableTab(self, tabName):
+        """ Creates a scrollable frame inside a tab, with auto-hiding scrollbar. """
+        tab = self.tabMenu.tab(tabName)
+        scrollable = ctk.CTkScrollableFrame(
+            tab,
+            fg_color='transparent',
+            corner_radius=0,
+            scrollbar_button_color=DARK_GRAY,
+            scrollbar_button_hover_color=LIGHT_GRAY)
+        scrollable.pack(fill='both', expand=True)
+
+        # auto-hide scrollbar when content fits
+        canvas = scrollable._parent_canvas
+        scrollbar = scrollable._scrollbar
+        def on_scroll(first, last):
+            if float(first) <= 0.0 and float(last) >= 1.0:
+                scrollbar.grid_forget()
+            else:
+                scrollbar.grid(row=0, column=1, sticky='ns')
+                scrollbar.set(first, last)
+        canvas.configure(yscrollcommand=on_scroll)
+
+        return scrollable
+
     def initWidgets(self):
         """ Creates top-level app widgets and calls widget init functions for each inventory module. """
 
@@ -172,6 +196,12 @@ class App(ctk.CTk):
         self.tabMenu.add('Weapon Mods')
         self.tabMenu.add('Runes')
         self.tabMenu.set('Praetor Suit')
+
+        # wrap each tab's content in a scrollable frame for smaller displays
+        self.praetorSuitContent = self._createScrollableTab('Praetor Suit')
+        self.equipWeaponsContent = self._createScrollableTab('Equipment & Weapons')
+        self.weaponModsContent = self._createScrollableTab('Weapon Mods')
+        self.runesContent = self._createScrollableTab('Runes')
 
         # path status info
         cDefaultPath = r'C:\Program Files (x86)\Steam\steamapps\common\DOOM'
@@ -236,7 +266,7 @@ class App(ctk.CTk):
     def initArgentWidgets(self):
         """ Creates widgets for the ArgentCellUpgrades inventory module. """
 
-        parent = self.tabMenu.tab('Praetor Suit')
+        parent = self.praetorSuitContent
 
         self.argentCellHeaderLabel = ctk.CTkLabel(
             parent, font=self.headerFont, text='Argent Cell Routing')
@@ -345,7 +375,7 @@ class App(ctk.CTk):
     def initPraetorWidgets(self):
         """ Creates widgets for the PraetorSuitUpgrades inventory module. """
 
-        parent = self.tabMenu.tab('Praetor Suit')
+        parent = self.praetorSuitContent
         parent.columnconfigure(0, weight=1)
 
         self.praetorCheckboxWidgets = []
@@ -467,7 +497,7 @@ class App(ctk.CTk):
     def initEquipmentWidgets(self):
         """ Creates widgets for the Equipment inventory module. """
 
-        parentTab = self.tabMenu.tab('Equipment & Weapons')
+        parentTab = self.equipWeaponsContent
         parentTab.columnconfigure(0, weight=1)
 
         self.equipmentCheckboxWidgets = []
@@ -534,7 +564,7 @@ class App(ctk.CTk):
     def initWeaponWidgets(self):
         """ Creates widgets for the Weapons inventory module. """
 
-        parentTab = self.tabMenu.tab('Equipment & Weapons')
+        parentTab = self.equipWeaponsContent
 
         self.weaponsCheckboxWidgets = []
 
@@ -664,7 +694,7 @@ class App(ctk.CTk):
     def initWeaponModWidgets(self):
         """ Creates widgets for the WeaponMods inventory module."""
 
-        parentTab = self.tabMenu.tab('Weapon Mods')
+        parentTab = self.weaponModsContent
         parentTab.columnconfigure(0, weight=1)
 
         self.weaponModsAvailableCheckboxWidgets = []
@@ -803,7 +833,7 @@ class App(ctk.CTk):
     def initRuneWidgets(self) -> None:
         """ Creates widgets for the Runes inventory module. """
 
-        parentTab = self.tabMenu.tab('Runes')
+        parentTab = self.runesContent
         parentTab.columnconfigure(0, weight=1)
 
         self.runesAvailableCheckboxWidgets = []
