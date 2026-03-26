@@ -147,12 +147,6 @@ class App(ctk.CTk):
     def initWidgets(self):
         """ Creates top-level app widgets and calls widget init functions for each inventory module. """
 
-        def tabViewTabChangeClick():
-            """ """
-            self.tabChangeSound.play()
-            if self.tabMenu.get() == 'Weapon Mods' and self.weaponModsTabMenu.get() == 'Super Shotgun':
-                self.tabViewTabChangeSsgCheck()
-
         # setup category tabs for inventory module grouping
         self.tabMenu = ctk.CTkTabview(
             master=self.mainContentFrame,
@@ -164,7 +158,7 @@ class App(ctk.CTk):
             segmented_button_selected_hover_color=RED_HIGHLIGHT,
             border_width=2,
             border_color=WHITE,
-            command=tabViewTabChangeClick)
+            command=self.tabChangeSound.play)
 
         self.tabMenu._segmented_button.configure(
             font=self.tabFont, border_width=1, bg_color=WHITE)
@@ -645,15 +639,6 @@ class App(ctk.CTk):
                         ammo = getattr(self.inventory.ammo, ammoType)
                         self.inventory.ammo.available.remove(ammo)
 
-                # handle special SSG case
-                if weaponItem.name == 'superShotgun':
-                    # remove any added SSG upgrades
-                    for each in self.ssgUpgradesAvailableCheckboxWidgets:
-                        each.deselect()
-                    for each in self.inventory.weaponMods.available:
-                        if type(each) is WeaponModPerk and each.applicableWeapon == 'superShotgun':
-                            self.inventory.weaponMods.available.remove(each)
-
                 # clear toggleAll switch - all are no longer selected
                 if self.toggleAllWeaponsSwitch.get():
                     self.toggleAllWeaponsSwitch.deselect()
@@ -669,30 +654,6 @@ class App(ctk.CTk):
             # add corresponding ammo to available, if not
             if ammoType and ammoType not in self.inventory.ammo.available:
                 self.inventory.ammo.addToAvailable(ammoType)
-
-    def tabViewTabChangeSsgCheck(self):
-        """ Checks if the Super Shotgun is available, and disables/enables SSG upgrade checkboxes accordingly. """
-        ssgAvailable: bool = self.checkSsgAvailable()
-        newState = 'disabled' if not ssgAvailable else 'normal'
-        for each in self.ssgUpgradesAvailableCheckboxWidgets:
-            # disable/enable all checkboxes for SSG upgrades
-            # depending on whether SSG is available
-            each.configure(state=newState)
-
-        if self.ssgUpgradesDisclaimerLabel:
-            # only show SSG upgrades disclaimer label if they're currently disabled
-            if ssgAvailable:
-                self.ssgUpgradesDisclaimerLabel.grid_forget()
-            else:
-                self.ssgUpgradesDisclaimerLabel.grid(
-                    column=0, row=2, padx=(0, 0), pady=(20, 0), sticky='nesw')
-
-    def checkSsgAvailable(self) -> bool:
-        """ Checks if the Super Shotgun is available in the current inventory."""
-        for each in self.inventory.weapons.available:
-            if each.name == 'superShotgun':
-                return True
-        return False
 
     def toggleAllWeapons(self):
         """ Adds/removes all weapons (and their ammo), and selects/deselects checkboxes accordingly.  """
@@ -712,14 +673,6 @@ class App(ctk.CTk):
             for each in self.weaponsCheckboxWidgets:
                 each.deselect()
 
-            # remove any added SSG upgrades
-            for each in self.ssgUpgradesAvailableCheckboxWidgets:
-                each.deselect()
-            for each in self.inventory.weaponMods.available:
-                if type(each) is WeaponModPerk and each.applicableWeapon == 'superShotgun':
-                    # if SSG is not available, remove its upgrades from available
-                    self.inventory.weaponMods.available.remove(each)
-
     def initWeaponModWidgets(self):
         """ Creates widgets for the WeaponMods inventory module."""
 
@@ -728,8 +681,6 @@ class App(ctk.CTk):
 
         self.weaponModsAvailableCheckboxWidgets = []
         self.weaponModUpgradesAvailableCheckboxWidgets = []
-        self.ssgUpgradesAvailableCheckboxWidgets = []
-        self.ssgUpgradesDisclaimerLabel = None
 
         self.weaponModsHeaderLabel = ctk.CTkLabel(
             parentTab, font=self.headerFont, text='Weapon Mods')
@@ -762,11 +713,6 @@ class App(ctk.CTk):
         self.toggleAllWeaponModsUpgradedSwitch.grid(
             column=1, row=0, sticky='w', padx=(20, 0), pady=(0, 0))
 
-        def tabViewTabChangeClick():
-            """ """
-            if self.weaponModsTabMenu.get() == 'Super Shotgun':
-                self.tabViewTabChangeSsgCheck()
-
         # setup tabs for grouping mods by applicable weapon
         self.weaponModsTabMenu = ctk.CTkTabview(master=parentTab,
                                                 width=WINDOW_SIZE[0] - 150,
@@ -776,8 +722,7 @@ class App(ctk.CTk):
                                                 segmented_button_selected_color=RED,
                                                 segmented_button_selected_hover_color=RED_HIGHLIGHT,
                                                 border_width=2,
-                                                border_color=WHITE,
-                                                command=tabViewTabChangeClick)
+                                                border_color=WHITE)
 
         self.weaponModsTabMenu._segmented_button.configure(
             font=self.checkboxFont, border_width=1, bg_color=WHITE)
@@ -853,23 +798,14 @@ class App(ctk.CTk):
         allSwitchOn = self.toggleAllWeaponModsUpgradedSwitch.get()
 
         if allSwitchOn:
-            self.inventory.weaponMods.toggleAllModUpgradesAvailable(
-                True, self.checkSsgAvailable())
+            self.inventory.weaponMods.toggleAllModUpgradesAvailable(True)
             # update UI - all upgrade weapon mod checkboxes
             for each in self.weaponModUpgradesAvailableCheckboxWidgets:
                 each.select()
-            # handle special SSG case
-            if self.checkSsgAvailable():
-                for each in self.ssgUpgradesAvailableCheckboxWidgets:
-                    each.select()
         else:
             # clear available status for all mod upgrades + update UI
-            self.inventory.weaponMods.toggleAllModUpgradesAvailable(
-                False, self.checkSsgAvailable())
+            self.inventory.weaponMods.toggleAllModUpgradesAvailable(False)
             for each in self.weaponModUpgradesAvailableCheckboxWidgets:
-                each.deselect()
-            # handle special SSG case
-            for each in self.ssgUpgradesAvailableCheckboxWidgets:
                 each.deselect()
 
     def initRuneWidgets(self) -> None:
@@ -1458,23 +1394,9 @@ class WeaponTabNoMods():
                 pady=(0, 0),
                 checkboxHeight=20,
                 checkboxWidth=20)
-            if upgrade.applicableWeapon == 'superShotgun':
-                parentApp.ssgUpgradesAvailableCheckboxWidgets.append(
-                    self.weaponModUpgradeCheckbox)
-            else:
-                parentApp.weaponModUpgradesAvailableCheckboxWidgets.append(
-                    self.weaponModUpgradeCheckbox)
+            parentApp.weaponModUpgradesAvailableCheckboxWidgets.append(
+                self.weaponModUpgradeCheckbox)
             rowIndex += 1
-
-        parentApp.ssgUpgradesDisclaimerLabel = ctk.CTkLabel(
-            parentWeaponTab,
-            text='NOTE: Super Shotgun upgrades are not available until the SSG is added to your starting loadout.',
-            font=parentApp.checkboxFont,
-            text_color=WHITE,
-            wraplength=WINDOW_SIZE[0] - 150)
-        if weaponName == 'superShotgun':
-            parentApp.ssgUpgradesDisclaimerLabel.grid(
-                column=0, row=2, padx=(0, 0), pady=(20, 0), sticky='nesw')
 
         imageSize_x = WEAPON_MOD_PANEL_DATA[weaponName]['imageSize'][0]
         imageSize_y = WEAPON_MOD_PANEL_DATA[weaponName]['imageSize'][1]
@@ -1488,8 +1410,7 @@ class WeaponTabNoMods():
 
         self.weaponImageLabel = ctk.CTkLabel(
             parentWeaponTab, image=self.weaponImage, text='')
-        pady = (0, 0) if weaponName != 'superShotgun' else (60, 0)
-        self.weaponImageLabel.grid(column=0, row=1, pady=pady)
+        self.weaponImageLabel.grid(column=0, row=1, pady=(0, 0))
 
 
 class WeaponModPanel():
