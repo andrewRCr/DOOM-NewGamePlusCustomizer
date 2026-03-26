@@ -433,6 +433,7 @@ class Weapons(InventoryModule):
     gaussCannon = WeaponItem(
         name='gaussCannon',
         fName='Gauss Cannon',
+        ammoType='cells',
         path='"weapon/zion/player/sp/gauss_rifle"',
         description='A devastatingly accurate long-range weapon with a noticeable kick that must be compensated by the operator.')
     chaingun = WeaponItem(
@@ -479,7 +480,7 @@ class WeaponMods(InventoryModule):
                     if each in self.available:
                         self.available.remove(each)
 
-    def toggleAllModUpgradesAvailable(self, areAvailable: bool, ssgAvailable: bool):
+    def toggleAllModUpgradesAvailable(self, areAvailable: bool):
         """ Toggles availability for all non-base mods (i.e., upgrades for base mods). """
 
         allMembers = self.all()
@@ -487,11 +488,7 @@ class WeaponMods(InventoryModule):
             if isinstance(each, WeaponModPerk) and each.applicableMod != 'isBaseMod':
                 if areAvailable:
                     if each not in self.available:
-                        if each.applicableWeapon != 'superShotgun':
-                            self.available.append(each)
-                        else:
-                            if ssgAvailable:
-                                self.available.append(each)
+                        self.available.append(each)
                 else:
                     if each in self.available:
                         self.available.remove(each)

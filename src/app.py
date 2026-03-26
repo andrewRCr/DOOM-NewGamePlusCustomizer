@@ -8,7 +8,6 @@ app.py:
 """
 
 import contextlib
-from CTkToolTip import CTkToolTip
 import customtkinter as ctk
 from customtkinter import filedialog
 from functools import partial
@@ -23,6 +22,9 @@ with contextlib.redirect_stdout(None):
     import pygame
 
 from datalib.inventory import *
+from popups import errorPopupMsg, infoPopupMsg, promptPopupMsg
+from widgets import DropdownMenu, Checkbox
+from panels import WeaponTab, WeaponTabNoMods, RunePanel
 
 
 class App(ctk.CTk):
@@ -147,12 +149,6 @@ class App(ctk.CTk):
     def initWidgets(self):
         """ Creates top-level app widgets and calls widget init functions for each inventory module. """
 
-        def tabViewTabChangeClick():
-            """ """
-            self.tabChangeSound.play()
-            if self.tabMenu.get() == 'Weapon Mods' and self.weaponModsTabMenu.get() == 'Super Shotgun':
-                self.tabViewTabChangeSsgCheck()
-
         # setup category tabs for inventory module grouping
         self.tabMenu = ctk.CTkTabview(
             master=self.mainContentFrame,
@@ -164,7 +160,7 @@ class App(ctk.CTk):
             segmented_button_selected_hover_color=RED_HIGHLIGHT,
             border_width=2,
             border_color=WHITE,
-            command=tabViewTabChangeClick)
+            command=self.tabChangeSound.play)
 
         self.tabMenu._segmented_button.configure(
             font=self.tabFont, border_width=1, bg_color=WHITE)
@@ -421,42 +417,51 @@ class App(ctk.CTk):
                 categoryRowIndex += 2
                 parentFrame = self.praetorCheckboxFrame2
 
-    def praetorCallback(self, perkName: str):
-        """ Toggles a PraetorPerk's availability.  """
+    def _toggleItemCallback(self, module, itemName, toggleAllSwitch, totalCount):
+        """ Generic toggle callback for simple inventory modules. Adds/removes item and updates toggle switch. """
 
         self.toggleSound.play()
 
-        # if not in available, add it; else, remove
         found = False
-        for perk in self.inventory.praetorSuitUpgrades.available:
-            if perk.name == perkName:
+        for item in module.available:
+            if item.name == itemName:
                 found = True
-                self.inventory.praetorSuitUpgrades.available.remove(perk)
-                # clear toggleAll switch - all are no longer selected
-                if self.toggleAllPraetorSwitch.get():
-                    self.toggleAllPraetorSwitch.deselect()
+                module.available.remove(item)
+                if toggleAllSwitch.get():
+                    toggleAllSwitch.deselect()
                 break
         if not found:
-            self.inventory.praetorSuitUpgrades.addToAvailable(perkName)
-            # if all are available, update UI toggle all switch to reflect that
-            if len(self.inventory.praetorSuitUpgrades.available) == 15:
-                self.toggleAllPraetorSwitch.select()
+            module.addToAvailable(itemName)
+            if len(module.available) == totalCount:
+                toggleAllSwitch.select()
+
+    def _toggleAllItems(self, module, toggleAllSwitch, checkboxWidgets):
+        """ Generic toggleAll for simple inventory modules. Adds/removes all items and updates checkboxes. """
+
+        self.toggleSound.play()
+        allSwitchOn = toggleAllSwitch.get()
+
+        if allSwitchOn:
+            module.addAllToAvailable()
+            for each in checkboxWidgets:
+                each.select()
+        else:
+            module.available.clear()
+            for each in checkboxWidgets:
+                each.deselect()
+
+    def praetorCallback(self, perkName: str):
+        """ Toggles a PraetorPerk's availability.  """
+        self._toggleItemCallback(
+            self.inventory.praetorSuitUpgrades, perkName,
+            self.toggleAllPraetorSwitch, 15)
 
     def toggleAllPraetorUpgrades(self):
         """ Adds/removes every upgrade, and selects/deselects checkboxes accordingly.  """
-
-        self.toggleSound.play()
-        allSwitchOn = self.toggleAllPraetorSwitch.get()
-
-        if allSwitchOn:
-            self.inventory.praetorSuitUpgrades.addAllToAvailable()
-            # update UI - all praetor checkboxes
-            for each in self.praetorCheckboxWidgets:
-                each.select()
-        else:
-            self.inventory.praetorSuitUpgrades.available.clear()
-            for each in self.praetorCheckboxWidgets:
-                each.deselect()
+        self._toggleAllItems(
+            self.inventory.praetorSuitUpgrades,
+            self.toggleAllPraetorSwitch,
+            self.praetorCheckboxWidgets)
 
     def initEquipmentWidgets(self):
         """ Creates widgets for the Equipment inventory module. """
@@ -514,40 +519,16 @@ class App(ctk.CTk):
 
     def equipmentCallback(self, equipmentItemName: str):
         """ Toggles an EquipmentItem's availability.  """
-
-        self.toggleSound.play()
-
-        # if not in available, add it; else, remove
-        found = False
-        for equipmentItem in self.inventory.equipment.available:
-            if equipmentItem.name == equipmentItemName:
-                found = True
-                self.inventory.equipment.available.remove(equipmentItem)
-                # clear toggleAll switch - all are no longer selected
-                if self.toggleAllEquipmentSwitch.get():
-                    self.toggleAllEquipmentSwitch.deselect()
-                break
-        if not found:
-            self.inventory.equipment.addToAvailable(equipmentItemName)
-            # if all are available, update UI toggle all switch to reflect that
-            if len(self.inventory.equipment.available) == 4:
-                self.toggleAllEquipmentSwitch.select()
+        self._toggleItemCallback(
+            self.inventory.equipment, equipmentItemName,
+            self.toggleAllEquipmentSwitch, 4)
 
     def toggleAllEquipment(self):
         """ Adds/removes all equipment, and selects/deselects checkboxes accordingly.  """
-
-        self.toggleSound.play()
-        allSwitchOn = self.toggleAllEquipmentSwitch.get()
-
-        if allSwitchOn:
-            self.inventory.equipment.addAllToAvailable()
-            # update UI - all equipment checkboxes
-            for each in self.equipmentCheckboxWidgets:
-                each.select()
-        else:
-            self.inventory.equipment.available.clear()
-            for each in self.equipmentCheckboxWidgets:
-                each.deselect()
+        self._toggleAllItems(
+            self.inventory.equipment,
+            self.toggleAllEquipmentSwitch,
+            self.equipmentCheckboxWidgets)
 
     def initWeaponWidgets(self):
         """ Creates widgets for the Weapons inventory module. """
@@ -640,19 +621,10 @@ class App(ctk.CTk):
                 self.inventory.weapons.available.remove(weaponItem)
 
                 # remove its ammo as well, if no other avail weapons use it
-                if not areOtherAvailableWeaponsUsingSameAmmo:
+                if not areOtherAvailableWeaponsUsingSameAmmo(ammoType):
                     if ammoType:
                         ammo = getattr(self.inventory.ammo, ammoType)
                         self.inventory.ammo.available.remove(ammo)
-
-                # handle special SSG case
-                if weaponItem.name == 'superShotgun':
-                    # remove any added SSG upgrades
-                    for each in self.ssgUpgradesAvailableCheckboxWidgets:
-                        each.deselect()
-                    for each in self.inventory.weaponMods.available:
-                        if type(each) is WeaponModPerk and each.applicableWeapon == 'superShotgun':
-                            self.inventory.weaponMods.available.remove(each)
 
                 # clear toggleAll switch - all are no longer selected
                 if self.toggleAllWeaponsSwitch.get():
@@ -667,32 +639,8 @@ class App(ctk.CTk):
                 self.toggleAllWeaponsSwitch.select()
 
             # add corresponding ammo to available, if not
-            if ammoType and ammoType not in self.inventory.ammo.available:
+            if ammoType:
                 self.inventory.ammo.addToAvailable(ammoType)
-
-    def tabViewTabChangeSsgCheck(self):
-        """ Checks if the Super Shotgun is available, and disables/enables SSG upgrade checkboxes accordingly. """
-        ssgAvailable: bool = self.checkSsgAvailable()
-        newState = 'disabled' if not ssgAvailable else 'normal'
-        for each in self.ssgUpgradesAvailableCheckboxWidgets:
-            # disable/enable all checkboxes for SSG upgrades
-            # depending on whether SSG is available
-            each.configure(state=newState)
-
-        if self.ssgUpgradesDisclaimerLabel:
-            # only show SSG upgrades disclaimer label if they're currently disabled
-            if ssgAvailable:
-                self.ssgUpgradesDisclaimerLabel.grid_forget()
-            else:
-                self.ssgUpgradesDisclaimerLabel.grid(
-                    column=0, row=2, padx=(0, 0), pady=(20, 0), sticky='nesw')
-
-    def checkSsgAvailable(self) -> bool:
-        """ Checks if the Super Shotgun is available in the current inventory."""
-        for each in self.inventory.weapons.available:
-            if each.name == 'superShotgun':
-                return True
-        return False
 
     def toggleAllWeapons(self):
         """ Adds/removes all weapons (and their ammo), and selects/deselects checkboxes accordingly.  """
@@ -712,14 +660,6 @@ class App(ctk.CTk):
             for each in self.weaponsCheckboxWidgets:
                 each.deselect()
 
-            # remove any added SSG upgrades
-            for each in self.ssgUpgradesAvailableCheckboxWidgets:
-                each.deselect()
-            for each in self.inventory.weaponMods.available:
-                if type(each) is WeaponModPerk and each.applicableWeapon == 'superShotgun':
-                    # if SSG is not available, remove its upgrades from available
-                    self.inventory.weaponMods.available.remove(each)
-
     def initWeaponModWidgets(self):
         """ Creates widgets for the WeaponMods inventory module."""
 
@@ -728,8 +668,6 @@ class App(ctk.CTk):
 
         self.weaponModsAvailableCheckboxWidgets = []
         self.weaponModUpgradesAvailableCheckboxWidgets = []
-        self.ssgUpgradesAvailableCheckboxWidgets = []
-        self.ssgUpgradesDisclaimerLabel = None
 
         self.weaponModsHeaderLabel = ctk.CTkLabel(
             parentTab, font=self.headerFont, text='Weapon Mods')
@@ -762,11 +700,6 @@ class App(ctk.CTk):
         self.toggleAllWeaponModsUpgradedSwitch.grid(
             column=1, row=0, sticky='w', padx=(20, 0), pady=(0, 0))
 
-        def tabViewTabChangeClick():
-            """ """
-            if self.weaponModsTabMenu.get() == 'Super Shotgun':
-                self.tabViewTabChangeSsgCheck()
-
         # setup tabs for grouping mods by applicable weapon
         self.weaponModsTabMenu = ctk.CTkTabview(master=parentTab,
                                                 width=WINDOW_SIZE[0] - 150,
@@ -776,8 +709,7 @@ class App(ctk.CTk):
                                                 segmented_button_selected_color=RED,
                                                 segmented_button_selected_hover_color=RED_HIGHLIGHT,
                                                 border_width=2,
-                                                border_color=WHITE,
-                                                command=tabViewTabChangeClick)
+                                                border_color=WHITE)
 
         self.weaponModsTabMenu._segmented_button.configure(
             font=self.checkboxFont, border_width=1, bg_color=WHITE)
@@ -808,26 +740,30 @@ class App(ctk.CTk):
                     availableTally += 1
             return True if availableTally == 12 else False
 
-            # proceed with toggling mod availability
-            self.toggleSound.play()
-            # if in available, remove it; else, add
-            if weaponModPerk in self.inventory.weaponMods.available:
-                self.inventory.weaponMods.available.remove(weaponModPerk)
-                # update UI - if this was a base mod, update toggle all switch to reflect new status
-                if not checkIfAllBaseModsAvailable():
-                    if self.toggleAllWeaponModsAvailableSwitch.get():
-                        self.toggleAllWeaponModsAvailableSwitch.deselect()
-                # update UI - if ANY mod was removed from available, this can't be true, so deselect switch
-                if self.toggleAllWeaponModsUpgradedSwitch.get():
-                    self.toggleAllWeaponModsUpgradedSwitch.deselect()
-            else:
-                self.inventory.weaponMods.addToAvailable(
-                    weaponModPerk.applicableWeapon, weaponModPerkName)
-                if len(self.inventory.weaponMods.available) >= 12:
-                    if checkIfAllBaseModsAvailable():
-                        self.toggleAllWeaponModsAvailableSwitch.select()
-                if len(self.inventory.weaponMods.available) == 61:
-                    self.toggleAllWeaponModsUpgradedSwitch.select()
+        weaponModPerk = self.inventory.weaponMods.getWeaponModPerkFromName(weaponModPerkName)
+        if weaponModPerk is None:
+            return
+
+        # proceed with toggling mod availability
+        self.toggleSound.play()
+        # if in available, remove it; else, add
+        if weaponModPerk in self.inventory.weaponMods.available:
+            self.inventory.weaponMods.available.remove(weaponModPerk)
+            # update UI - if this was a base mod, update toggle all switch to reflect new status
+            if not checkIfAllBaseModsAvailable():
+                if self.toggleAllWeaponModsAvailableSwitch.get():
+                    self.toggleAllWeaponModsAvailableSwitch.deselect()
+            # update UI - if ANY mod was removed from available, this can't be true, so deselect switch
+            if self.toggleAllWeaponModsUpgradedSwitch.get():
+                self.toggleAllWeaponModsUpgradedSwitch.deselect()
+        else:
+            self.inventory.weaponMods.addToAvailable(
+                weaponModPerk.applicableWeapon, weaponModPerkName)
+            if len(self.inventory.weaponMods.available) >= 12:
+                if checkIfAllBaseModsAvailable():
+                    self.toggleAllWeaponModsAvailableSwitch.select()
+            if len(self.inventory.weaponMods.available) == 61:
+                self.toggleAllWeaponModsUpgradedSwitch.select()
 
     def toggleAllWeaponModsAvailable(self):
         """ Adds/removes all base WeaponModPerks, and selects/deselects checkboxes accordingly.  """
@@ -853,23 +789,14 @@ class App(ctk.CTk):
         allSwitchOn = self.toggleAllWeaponModsUpgradedSwitch.get()
 
         if allSwitchOn:
-            self.inventory.weaponMods.toggleAllModUpgradesAvailable(
-                True, self.checkSsgAvailable())
+            self.inventory.weaponMods.toggleAllModUpgradesAvailable(True)
             # update UI - all upgrade weapon mod checkboxes
             for each in self.weaponModUpgradesAvailableCheckboxWidgets:
                 each.select()
-            # handle special SSG case
-            if self.checkSsgAvailable():
-                for each in self.ssgUpgradesAvailableCheckboxWidgets:
-                    each.select()
         else:
             # clear available status for all mod upgrades + update UI
-            self.inventory.weaponMods.toggleAllModUpgradesAvailable(
-                False, self.checkSsgAvailable())
+            self.inventory.weaponMods.toggleAllModUpgradesAvailable(False)
             for each in self.weaponModUpgradesAvailableCheckboxWidgets:
-                each.deselect()
-            # handle special SSG case
-            for each in self.ssgUpgradesAvailableCheckboxWidgets:
                 each.deselect()
 
     def initRuneWidgets(self) -> None:
@@ -929,7 +856,7 @@ class App(ctk.CTk):
         # setup rune checkbox display: 4 frames, 1 per row
         allRuneFrames = []
         rowIndex = 5
-        for i in range(4):
+        for _ in range(4):
             runeFrame = ctk.CTkFrame(parentTab, fg_color='transparent')
             runeFrame.grid(column=0, row=rowIndex, pady=(10, 10))
             allRuneFrames.append(runeFrame)
@@ -1182,444 +1109,6 @@ class App(ctk.CTk):
         outputPathStr = topLevelPath.replace('\\', '/')
         confirmMessage: str = f'Mod generated and placed in:\n{str(outputPathStr)}'
         self.createPopupMessage(PopupType.PT_INFO, -60, 0, confirmMessage)
-
-
-class popupMessage(ctk.CTkToplevel):
-    """ Represents a top-level window containing a pop-up message. """
-
-    def __init__(self, parent, width: int, height: int, xOffset: int, yOffset: int, message: str):
-
-        super().__init__(master=parent)
-
-        self.popupFont = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['Popups'])
-        self.mainAppWindow = parent
-
-        # setup window size / position
-        self.width = width
-        self.height = height
-        spawn_x = int(self.mainAppWindow.winfo_width() * .5 +
-                      self.mainAppWindow.winfo_x() - .5 * self.width) + xOffset
-        spawn_y = int(self.mainAppWindow.winfo_height() * .5 +
-                      self.mainAppWindow.winfo_y() - .5 * self.height) + yOffset
-        self.geometry(f'{self.width}x{self.height}+{spawn_x}+{spawn_y}')
-
-        # set appearance
-        ctk.set_appearance_mode('dark')
-        self.transparentColor = self._apply_appearance_mode(self.cget("fg_color"))
-        self.attributes("-transparentcolor", self.transparentColor)
-        self.cornerRadius = 15
-        self.overrideredirect(True)
-
-        # setting up frame for widgets
-        self.popupFrame = ctk.CTkFrame(
-            self,
-            corner_radius=self.cornerRadius,
-            width=self.width,
-            height=self.height,
-            fg_color=DARK_GRAY,
-            bg_color=self.transparentColor,
-            border_width=2,
-            border_color=WHITE)
-        self.popupFrame.pack(fill='both', expand=True)
-
-
-class errorPopupMsg(popupMessage):
-    """ 'Error' pop-up type specific class. """
-
-    def __init__(self, parent, xOffset: int, yOffset: int, message: str):
-
-        super().__init__(
-            parent=parent,
-            width=500,
-            height=140,
-            xOffset=xOffset,
-            yOffset=yOffset,
-            message=message)
-
-        messageImage = ctk.CTkImage(
-            light_image=Image.open(resource_path('images/info.png')),
-            dark_image=Image.open(resource_path('images/info.png')))
-
-        self.imageLabel = ctk.CTkLabel(
-            self.popupFrame, image=messageImage, text='', anchor='w')
-        self.imageLabel.grid(column=0, row=0, padx=20, pady=20)
-
-        self.messageLabel = ctk.CTkLabel(
-            self.popupFrame, font=self.popupFont, text=f'{message}', wraplength=400, padx=5, pady=5)
-        self.messageLabel.grid(column=1, row=0, pady=20, sticky='w')
-
-        self.okButton = ctk.CTkButton(self.popupFrame, font=self.popupFont, text='OK',
-                                      fg_color=RED, hover_color=RED_HIGHLIGHT, command=self.destroy)
-        self.okButton.grid(column=1, row=1)
-
-
-class infoPopupMsg(popupMessage):
-    """ 'Info' pop-up type specific class. """
-
-    def __init__(self, parent, xOffset: int, yOffset: int, message: str):
-
-        message = message  # + "making this extra long for no reason other than to test wrapping etc etc etc etc"
-
-        super().__init__(
-            parent=parent,
-            width=520,
-            height=120,
-            xOffset=xOffset,
-            yOffset=yOffset,
-            message=message)
-
-        messageImage = ctk.CTkImage(
-            light_image=Image.open(resource_path('images/slayer_icon.png')),
-            dark_image=Image.open(resource_path('images/slayer_icon.png')),
-            size=(60, 60))
-
-        self.imageLabel = ctk.CTkLabel(self.popupFrame, image=messageImage, text='')
-        self.imageLabel.grid(column=0, row=0, padx=(10, 0), pady=(20, 0))
-
-        self.messageLabel = ctk.CTkLabel(
-            self.popupFrame, font=self.popupFont, text=f'{message}', wraplength=400, padx=0, pady=0)
-        self.messageLabel.grid(column=1, row=0, padx=(40, 0), pady=10, sticky='nsew')
-
-        self.okButton = ctk.CTkButton(self.popupFrame, font=self.popupFont, text='OK',
-                                      fg_color=RED, hover_color=RED_HIGHLIGHT, command=self.destroy)
-        self.okButton.grid(column=0, row=1, padx=(
-            120, 0), pady=(0, 15), columnspan=2)
-
-
-class promptPopupMsg(popupMessage):
-    """ Prompt pop-up type specific class. """
-
-    def __init__(self, parent, xOffset: int, yOffset: int, message: str):
-
-        super().__init__(
-            parent=parent,
-            width=520,
-            height=130,
-            xOffset=xOffset,
-            yOffset=yOffset,
-            message=message)
-
-        messageImage = ctk.CTkImage(light_image=Image.open('res/images/info.png'),
-                                    dark_image=Image.open('res/images/info.png'))
-
-        self.imageLabel = ctk.CTkLabel(self.popupFrame, image=messageImage, text='')
-        self.imageLabel.grid(column=0, row=0, padx=(30, 0), pady=(30, 0))
-
-        self.messageLabel = ctk.CTkLabel(
-            self.popupFrame, font=self.popupFont, text=f'{message}', wraplength=400, padx=0, pady=0)
-        self.messageLabel.grid(column=1, row=0, padx=(
-            30, 0), pady=(30, 0), sticky='w', columnspan=2)
-
-        self.browseButton = ctk.CTkButton(self.popupFrame, width=80, font=self.popupFont, text='Browse',
-                                          fg_color=RED, hover_color=RED_HIGHLIGHT, command=parent.promptUserForPath)
-        self.browseButton.grid(column=1, row=1, padx=(40, 0), pady=(15, 15), sticky='e')
-
-        self.cancelButton = ctk.CTkButton(self.popupFrame, width=80, font=self.popupFont,
-                                          text='Cancel', fg_color=LIGHT_GRAY, hover_color=RED_HIGHLIGHT, command=self.destroy)
-        self.cancelButton.grid(column=2, row=1, padx=(10, 0), pady=(15, 15), sticky='w')
-
-
-class DropdownMenu(ctk.CTkOptionMenu):
-    """ App drop-down menu widget base class. """
-
-    def __init__(self, parent, values, command):
-
-        self.dropdownWidgetFont = ctk.CTkFont(
-            'Eternal UI Regular', FONT_SIZES['Dropdowns'])
-
-        super().__init__(
-            master=parent,
-            fg_color=DARK_GRAY,
-            button_color=RED,
-            button_hover_color=RED_HIGHLIGHT,
-            font=self.dropdownWidgetFont,
-            values=values,
-            command=command,
-            dropdown_font=self.dropdownWidgetFont)
-
-
-class Checkbox(ctk.CTkCheckBox):
-    """ App checkbox widget base class. """
-
-    def __init__(
-            self,
-            parent,
-            text,
-            column,
-            row,
-            command,
-            tooltipMsg,
-            padx: tuple = (20, 0),
-            pady: tuple = (0, 0),
-            sticky=None,
-            state='normal',
-            font=None,
-            checkboxHeight=24,
-            checkboxWidth=24):
-
-        if font is None:
-            font = ctk.CTkFont('Eternal UI Regular', FONT_SIZES['Checkboxes'])
-
-        super().__init__(
-            master=parent,
-            fg_color=RED,
-            hover_color=RED_HIGHLIGHT,
-            font=font,
-            text=text,
-            command=command,
-            state=state,
-            checkbox_height=checkboxHeight,
-            checkbox_width=checkboxWidth)
-
-        self.grid(column=column, row=row, padx=padx, pady=pady, sticky=sticky)
-        tooltipText = tooltipMsg
-        CTkToolTip(self, message=tooltipText)
-
-
-class WeaponTab():
-    """ Category tab panel contents for each Weapon that has mods to display/edit. """
-
-    def __init__(self, parentApp, weaponName: str):
-
-        fName = WEAPON_MOD_PANEL_DATA[weaponName]['fName']
-
-        parentWeaponTab = parentApp.weaponModsTabMenu.tab(fName)
-        parentWeaponTab.columnconfigure(0, weight=1)
-
-        self.weaponPanelFrame = ctk.CTkFrame(
-            parentWeaponTab, fg_color='transparent', border_color=WHITE, border_width=0)
-        self.weaponPanelFrame.grid(column=0, row=0, pady=(60, 30))
-
-        allModsForWeapon = parentApp.inventory.weaponMods.getAllModsForWeapon(weaponName)
-
-        columnIndex = 0
-        for each in allModsForWeapon:
-            if each.applicableMod == 'isBaseMod':
-                WeaponModPanel(
-                    parentApp=parentApp,
-                    parentFrame=self.weaponPanelFrame,
-                    parentFrameColumn=columnIndex,
-                    parentFrameRow=0,
-                    weaponModName=each.name,
-                    panelPadX=(0, 80))
-                columnIndex += 1
-
-            imageSize_x = WEAPON_MOD_PANEL_DATA[weaponName]['imageSize'][0]
-            imageSize_y = WEAPON_MOD_PANEL_DATA[weaponName]['imageSize'][1]
-
-            self.weaponImage = ctk.CTkImage(light_image=Image.open(resource_path(WEAPON_MOD_PANEL_DATA[weaponName]['imagePath'])),
-                                            dark_image=Image.open(resource_path(
-                                                WEAPON_MOD_PANEL_DATA[weaponName]['imagePath'])),
-                                            size=(int(imageSize_x * .75), int(imageSize_y * .75)))
-
-            self.weaponImageLabel = ctk.CTkLabel(
-                parentWeaponTab, image=self.weaponImage, text='')
-            self.weaponImageLabel.grid(column=0, row=1, pady=(30, 0))
-
-
-class WeaponTabNoMods():
-    """ Category tab panel contents for each Weapon that has only non-mod upgrades to display/edit."""
-
-    def __init__(self, parentApp, weaponName: str):
-
-        fName = WEAPON_MOD_PANEL_DATA[weaponName]['fName']
-
-        parentWeaponTab = parentApp.weaponModsTabMenu.tab(fName)
-        parentWeaponTab.columnconfigure(0, weight=1)
-
-        self.weaponPanelFrame = ctk.CTkFrame(
-            parentWeaponTab, fg_color='transparent', border_color=WHITE, border_width=0)
-        self.weaponPanelFrame.grid(column=0, row=0, pady=(60, 0))
-
-        self.upgradesHeaderLabel = ctk.CTkLabel(
-            self.weaponPanelFrame, text='Upgrades', font=parentApp.headerFont)
-        self.upgradesHeaderLabel.grid(
-            column=0, row=0, padx=(0, 0), pady=(0, 10), sticky='w')
-
-        self.weaponUpgradesFrame = ctk.CTkFrame(
-            self.weaponPanelFrame, fg_color='transparent', border_color=WHITE, border_width=0)
-        self.weaponUpgradesFrame.grid(column=0, row=1, padx=(0, 0), sticky='w')
-
-        allUpgrades = parentApp.inventory.weaponMods.getAllModsForWeapon(weaponName)
-
-        rowIndex = 0
-        for upgrade in allUpgrades:
-            callbackFunc = partial(parentApp.weaponModCallback, upgrade.name)
-            upgradeToolTipText = upgrade.description
-            self.weaponModUpgradeCheckbox = Checkbox(
-                parent=self.weaponUpgradesFrame,
-                text=upgrade.fName,
-                font=parentApp.checkboxFont,
-                column=1,
-                row=rowIndex,
-                command=callbackFunc,
-                tooltipMsg=upgradeToolTipText,
-                sticky='w',
-                pady=(0, 0),
-                checkboxHeight=20,
-                checkboxWidth=20)
-            if upgrade.applicableWeapon == 'superShotgun':
-                parentApp.ssgUpgradesAvailableCheckboxWidgets.append(
-                    self.weaponModUpgradeCheckbox)
-            else:
-                parentApp.weaponModUpgradesAvailableCheckboxWidgets.append(
-                    self.weaponModUpgradeCheckbox)
-            rowIndex += 1
-
-        parentApp.ssgUpgradesDisclaimerLabel = ctk.CTkLabel(
-            parentWeaponTab,
-            text='NOTE: Super Shotgun upgrades are not available until the SSG is added to your starting loadout.',
-            font=parentApp.checkboxFont,
-            text_color=WHITE,
-            wraplength=WINDOW_SIZE[0] - 150)
-        if weaponName == 'superShotgun':
-            parentApp.ssgUpgradesDisclaimerLabel.grid(
-                column=0, row=2, padx=(0, 0), pady=(20, 0), sticky='nesw')
-
-        imageSize_x = WEAPON_MOD_PANEL_DATA[weaponName]['imageSize'][0]
-        imageSize_y = WEAPON_MOD_PANEL_DATA[weaponName]['imageSize'][1]
-
-        self.weaponImage = ctk.CTkImage(
-            light_image=Image.open(resource_path(
-                WEAPON_MOD_PANEL_DATA[weaponName]['imagePath'])),
-            dark_image=Image.open(resource_path(
-                WEAPON_MOD_PANEL_DATA[weaponName]['imagePath'])),
-            size=(int(imageSize_x * .75), int(imageSize_y * .75)))
-
-        self.weaponImageLabel = ctk.CTkLabel(
-            parentWeaponTab, image=self.weaponImage, text='')
-        pady = (0, 0) if weaponName != 'superShotgun' else (60, 0)
-        self.weaponImageLabel.grid(column=0, row=1, pady=pady)
-
-
-class WeaponModPanel():
-    """ Panel for individual weapon mods and their upgrades, containing checkboxes for each. """
-
-    def __init__(self, parentApp, parentFrame, parentFrameColumn, parentFrameRow, weaponModName: str, panelPadX: tuple = (0, 0), panelPadY: tuple = (0, 0)):
-
-        self.weaponModPerk = parentApp.inventory.weaponMods.getWeaponModPerkFromName(
-            weaponModName)
-        if self.weaponModPerk is None:
-            return
-
-        callbackFunc = partial(parentApp.weaponModCallback, weaponModName)
-        self.weaponModHeaderCheckbox = ctk.CTkCheckBox(
-            master=parentFrame,
-            font=parentApp.headerFont,
-            text=self.weaponModPerk.fName,
-            command=callbackFunc,
-            fg_color=RED,
-            hover_color=RED_HIGHLIGHT)
-        self.weaponModHeaderCheckbox.grid(
-            column=parentFrameColumn, row=parentFrameRow, padx=panelPadX, pady=(0, 10), sticky='w')
-        CTkToolTip(self.weaponModHeaderCheckbox, message=self.weaponModPerk.description)
-        parentApp.weaponModsAvailableCheckboxWidgets.append(self.weaponModHeaderCheckbox)
-
-        self.weaponModUpgradesFrame = ctk.CTkFrame(
-            parentFrame, fg_color='transparent', border_color=WHITE, border_width=0)
-        self.weaponModUpgradesFrame.grid(
-            column=parentFrameColumn, row=parentFrameRow + 1, padx=panelPadX, sticky='w')
-
-        allModUpgrades = parentApp.inventory.weaponMods.getAllUpgradesForMod(
-            weaponModName)
-
-        rowIndex = 0
-        for upgrade in allModUpgrades:
-            callbackFunc = partial(parentApp.weaponModCallback, upgrade.name)
-            upgradeToolTipText = upgrade.description
-            self.weaponModUpgradeCheckbox = Checkbox(
-                parent=self.weaponModUpgradesFrame,
-                text=upgrade.fName,
-                font=parentApp.checkboxFont,
-                column=1,
-                row=rowIndex,
-                command=callbackFunc,
-                tooltipMsg=upgradeToolTipText,
-                sticky='w',
-                pady=(0, 0),
-                checkboxHeight=20,
-                checkboxWidth=20)
-            parentApp.weaponModUpgradesAvailableCheckboxWidgets.append(
-                self.weaponModUpgradeCheckbox)
-            rowIndex += 1
-
-
-class RunePanel():
-    """ Panel for each rune display, containing checkboxes for unlocking, upgrading, and permanently equipping. """
-
-    def __init__(self, parentApp, parentFrame, parentFrameColumn, parentFrameRow, runePerkName: str, panelPadX: tuple = (0, 0), panelPadY: tuple = (0, 0)):
-
-        self.runePerk = parentApp.inventory.runes.getRunePerkFromName(runePerkName)
-        if self.runePerk is None:
-            return
-
-        # add to static tracking data
-        RUNE_PANEL_DATA[runePerkName]['panel'] = self
-
-        # rune: available / header
-        runeAvailableCallback = partial(parentApp.runeAvailableCallback, runePerkName)
-        self.runeHeaderCheckbox = ctk.CTkCheckBox(
-            master=parentFrame,
-            font=parentApp.subheaderFont,
-            text=RUNE_PANEL_DATA[self.runePerk.name]['fName'],
-            command=runeAvailableCallback,
-            fg_color=RED,
-            hover_color=RED_HIGHLIGHT)
-        self.runeHeaderCheckbox.grid(
-            column=parentFrameColumn, row=parentFrameRow, padx=panelPadX, pady=(0, 10), sticky='w')
-        CTkToolTip(self.runeHeaderCheckbox, message=self.runePerk.description)
-        parentApp.runesAvailableCheckboxWidgets.append(self.runeHeaderCheckbox)
-
-        self.runeSubOptionFrame = ctk.CTkFrame(
-            parentFrame, fg_color='transparent', border_color=WHITE, border_width=0)
-        self.runeSubOptionFrame.grid(
-            column=parentFrameColumn, row=parentFrameRow + 1, padx=panelPadX, sticky='w')
-
-        runeImage = ctk.CTkImage(
-            light_image=Image.open(resource_path(
-                RUNE_PANEL_DATA[runePerkName]['imagePath'])),
-            dark_image=Image.open(resource_path(
-                RUNE_PANEL_DATA[runePerkName]['imagePath'])),
-            size=(70, 70))
-        runeImageLabel = ctk.CTkLabel(self.runeSubOptionFrame, image=runeImage, text='')
-        runeImageLabel.grid(column=0, row=0, padx=(
-            0, 0), pady=(0, 0), rowspan=2, sticky='nsew')
-
-        # rune: upgraded
-        runeUpgradedCallback = partial(parentApp.runeUpgradedCallback, runePerkName)
-        runeUpgradedTooltipText = self.runePerk.upgradeDescription
-        self.runeUpgradedCheckbox = Checkbox(
-            parent=self.runeSubOptionFrame,
-            text='Upgraded',
-            font=parentApp.runeSubOptionFont,
-            column=1,
-            row=0,
-            command=runeUpgradedCallback,
-            tooltipMsg=runeUpgradedTooltipText,
-            sticky='w',
-            pady=(0, 0),
-            checkboxHeight=20,
-            checkboxWidth=20,
-            state='disabled')
-        parentApp.runesUpgradedCheckboxWidgets.append(self.runeUpgradedCheckbox)
-
-        # rune: permanent equip
-        runePermEquipCallback = partial(parentApp.runePermEquipCallback, runePerkName)
-        permEquipTooltipMsg = 'Permanently equip rune without it taking up a slot.'
-        self.runePermEquipCheckbox = Checkbox(
-            parent=self.runeSubOptionFrame,
-            text='Permanently Equipped',
-            font=parentApp.runeSubOptionFont,
-            column=1,
-            row=1,
-            command=runePermEquipCallback,
-            tooltipMsg=permEquipTooltipMsg,
-            sticky='w',
-            pady=(0, 0),
-            checkboxHeight=20,
-            checkboxWidth=20,
-            state='disabled')
-        parentApp.runesPermEquipCheckboxWidgets.append(self.runePermEquipCheckbox)
 
 
 if __name__ == '__main__':
