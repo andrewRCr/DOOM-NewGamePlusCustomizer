@@ -5,6 +5,7 @@ generated/
 output/
 
 *.txt
+!requirements.txt
 *.decl;devInvLoadout
 *.zip
 *.spec
