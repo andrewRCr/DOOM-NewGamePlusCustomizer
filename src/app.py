@@ -158,6 +158,7 @@ class App(ctk.CTk):
         self.tabMenu = ctk.CTkTabview(
             master=self.mainContentFrame,
             width=WINDOW_SIZE[0] - 40,
+            height=WINDOW_SIZE[1] - 20,
             fg_color=DARKEST_GRAY,
             segmented_button_fg_color=DARKEST_GRAY,
             segmented_button_selected_color=RED,
